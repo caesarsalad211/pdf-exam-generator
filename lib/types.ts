@@ -48,6 +48,10 @@ export interface ModelOption {
   badge: string;
   description: string;
   costTier: "cheapest" | "balanced" | "standard";
+  inputPricePerM: number; // USD per 1M input tokens
+  outputPricePerM: number; // USD per 1M output tokens
+  outputTokensPerQuestion: number; // average output tokens per question for this model
+  speedRating: string;
 }
 
 export const AVAILABLE_MODELS: ModelOption[] = [
@@ -55,22 +59,34 @@ export const AVAILABLE_MODELS: ModelOption[] = [
     id: "gemini-3.6-flash",
     name: "Gemini 3.6 Flash",
     badge: "⚡ Lowest Cost & Fastest (Recommended)",
-    description: "Google's latest lightweight Flash model. High speed, low token cost, and sharp question generation.",
+    description: "Google's latest lightweight Flash model. Ultra-fast throughput and high token efficiency.",
     costTier: "cheapest",
+    inputPricePerM: 0.075,
+    outputPricePerM: 0.30,
+    outputTokensPerQuestion: 85,
+    speedRating: "⚡⚡⚡ Ultra Fast (< 20s)",
   },
   {
     id: "gemini-2.5-flash",
     name: "Gemini 2.5 Flash",
     badge: "🎯 High Speed Flash",
-    description: "Fast and reliable generation for medium to large study materials.",
+    description: "Fast generation with expanded reasoning for deep conceptual questions.",
     costTier: "balanced",
+    inputPricePerM: 0.10,
+    outputPricePerM: 0.40,
+    outputTokensPerQuestion: 95,
+    speedRating: "⚡⚡ Very Fast (~25s)",
   },
   {
     id: "gemini-1.5-flash",
     name: "Gemini 1.5 Flash",
     badge: "⚖️ Standard Flash",
-    description: "Standard general-purpose flash model.",
+    description: "Standard general-purpose flash model with broad compatibility.",
     costTier: "standard",
+    inputPricePerM: 0.15,
+    outputPricePerM: 0.60,
+    outputTokensPerQuestion: 105,
+    speedRating: "⚡ Standard (~30s)",
   },
 ];
 

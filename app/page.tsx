@@ -20,10 +20,15 @@ export default function HomePage() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Dynamic calculations based on selected model and count
+  const activeModel = AVAILABLE_MODELS.find((m) => m.id === selectedModel) || AVAILABLE_MODELS[0];
   const totalChars = files.reduce((acc, f) => acc + (f.charCount || 0), 0);
   const estInputTokens = estimateTokens(totalChars);
-  const estOutputTokens = count * 90; // ~90 tokens per question with choices and 1-2 sentence explanation
+  const estOutputTokens = count * activeModel.outputTokensPerQuestion;
   const estTotalTokens = estInputTokens + estOutputTokens;
+  const estCostUSD =
+    (estInputTokens / 1_000_000) * activeModel.inputPricePerM +
+    (estOutputTokens / 1_000_000) * activeModel.outputPricePerM;
 
   async function handleGenerate() {
     if (files.length === 0) return;
@@ -147,10 +152,10 @@ export default function HomePage() {
                   Select AI Model (Cheapest / Lowest Token Cost):
                 </label>
                 <span className="text-[11px] font-medium text-emerald-600">
-                  💡 Flash-8B & Flash-Lite are ultra-low cost
+                  💡 Dynamic token & cost estimation updates live
                 </span>
               </div>
-              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
                 {AVAILABLE_MODELS.map((m) => {
                   const isSelected = selectedModel === m.id;
                   return (
@@ -160,42 +165,55 @@ export default function HomePage() {
                       className={`relative flex cursor-pointer flex-col justify-between rounded-xl border p-3 transition-all
                         ${
                           isSelected
-                            ? "border-indigo-600 bg-indigo-50/60 ring-2 ring-indigo-500/20"
+                            ? "border-indigo-600 bg-indigo-50/60 ring-2 ring-indigo-500/20 shadow-sm"
                             : "border-gray-200 bg-white hover:border-indigo-300 hover:bg-slate-50"
                         }`}
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
+                      <div>
+                        <div className="flex items-start justify-between gap-1">
                           <p className="text-xs font-bold text-gray-900">
                             {m.name}
                           </p>
                           <span
-                            className={`mt-0.5 inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold
+                            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-[10px]
                               ${
-                                m.costTier === "cheapest"
-                                  ? "bg-emerald-100 text-emerald-800"
-                                  : m.costTier === "balanced"
-                                  ? "bg-indigo-100 text-indigo-800"
-                                  : "bg-gray-100 text-gray-700"
+                                isSelected
+                                  ? "border-indigo-600 bg-indigo-600 text-white"
+                                  : "border-gray-300"
                               }`}
                           >
-                            {m.badge}
+                            {isSelected ? "✓" : ""}
                           </span>
                         </div>
                         <span
-                          className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-[10px]
+                          className={`mt-1 inline-block rounded px-1.5 py-0.5 text-[9px] font-semibold
                             ${
-                              isSelected
-                                ? "border-indigo-600 bg-indigo-600 text-white"
-                                : "border-gray-300"
+                              m.costTier === "cheapest"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : m.costTier === "balanced"
+                                ? "bg-indigo-100 text-indigo-800"
+                                : "bg-gray-100 text-gray-700"
                             }`}
                         >
-                          {isSelected ? "✓" : ""}
+                          {m.badge}
                         </span>
+                        <p className="mt-2 text-[11px] leading-snug text-gray-500">
+                          {m.description}
+                        </p>
                       </div>
-                      <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
-                        {m.description}
-                      </p>
+
+                      <div className="mt-3 border-t border-gray-100 pt-2 text-[10px] text-gray-400">
+                        <div className="flex justify-between">
+                          <span>Rates:</span>
+                          <span className="font-semibold text-gray-600">
+                            ${m.inputPricePerM}/1M in
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-indigo-600 font-medium">
+                          <span>Speed:</span>
+                          <span>{m.speedRating}</span>
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
@@ -228,23 +246,43 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Token Estimation Box */}
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3.5">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">📊</span>
+            {/* Dynamic Token & Cost Estimation Box */}
+            <div className="rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-50/80 via-white to-indigo-50/50 p-4 shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-emerald-100/80 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 text-base font-bold">
+                    📊
+                  </div>
                   <div>
                     <p className="text-xs font-bold text-emerald-950">
                       Estimated Token Budget: ~{estTotalTokens.toLocaleString()} tokens
                     </p>
                     <p className="text-[11px] text-emerald-800">
-                      Input: ~{estInputTokens.toLocaleString()} tokens | Output: ~{estOutputTokens.toLocaleString()} tokens
+                      Input: ~{estInputTokens.toLocaleString()} tokens | Output: ~{estOutputTokens.toLocaleString()} tokens ({activeModel.outputTokensPerQuestion} tokens/item)
                     </p>
                   </div>
                 </div>
-                <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-emerald-800 shadow-sm">
-                  Active Model: {AVAILABLE_MODELS.find((m) => m.id === selectedModel)?.name}
-                </span>
+
+                <div className="text-right">
+                  <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-800 shadow-xs">
+                    {activeModel.name}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div className="flex items-center gap-1.5 text-gray-600">
+                  <span className="text-sm">💵</span>
+                  <span>Estimated API Cost:</span>
+                  <span className="font-bold text-emerald-700">
+                    {estCostUSD < 0.001 ? "< $0.001 USD" : `$${estCostUSD.toFixed(4)} USD`}
+                  </span>
+                  <span className="text-[10px] text-gray-400">(Free Tier: $0.00)</span>
+                </div>
+
+                <div className="text-indigo-700 text-[11px] font-medium">
+                  {activeModel.speedRating}
+                </div>
               </div>
             </div>
           </div>
@@ -288,7 +326,7 @@ export default function HomePage() {
                   d="M4 12a8 8 0 018-8v8H4z"
                 />
               </svg>
-              Generating with {AVAILABLE_MODELS.find((m) => m.id === selectedModel)?.name}…
+              Generating with {activeModel.name}…
             </span>
           ) : (
             `✨ Generate ${count}-Item Exam`
