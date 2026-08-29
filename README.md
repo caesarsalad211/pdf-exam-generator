@@ -50,20 +50,6 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - Get a free key at [Google AI Studio](https://aistudio.google.com).
 - Click **Save Key** and start generating exams!
 
----
-
-## 🌐 Deploy Online for Free (Vercel)
-
-Deploy this project on Vercel so your friends and classmates can use it on any device:
-
-1. Go to [Vercel](https://vercel.com) and sign in with your GitHub account.
-2. Click **"Add New..."** → **"Project"**.
-3. Select the `pdf-exam-generator` repository and click **Deploy**.
-4. You will get a shareable URL (e.g. `https://pdf-exam-generator.vercel.app`) in ~30 seconds!
-
-*(Users can enter their own free API key via the in-app 🔑 button, so it runs on their own free quota!)*
-
----
 
 ## 🛠️ Tech Stack
 
