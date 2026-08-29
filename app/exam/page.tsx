@@ -7,6 +7,7 @@ import QuestionCard from "@/components/QuestionCard";
 import ReviewerCard from "@/components/ReviewerCard";
 import ScoreSummary from "@/components/ScoreSummary";
 import ApiKeyModal from "@/components/ApiKeyModal";
+import AboutModal from "@/components/AboutModal";
 import { updateExamScore, exportExamAsJson } from "@/lib/storage";
 
 type Tab = "exam" | "reviewer";
@@ -117,6 +118,7 @@ export default function ExamPage() {
           </span>
         </div>
         <div className="flex items-center gap-2 print:hidden">
+          <AboutModal />
           <ApiKeyModal />
           <button
             onClick={handleExport}

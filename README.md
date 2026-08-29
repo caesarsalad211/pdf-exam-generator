@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📄 PDF Exam Generator & Reviewer
 
-## Getting Started
+An intelligent, token-optimized Next.js web application that turns your PDF study materials into **interactive practice exams** and **side-by-side study reviewers** powered by Google Gemini AI.
 
-First, run the development server:
+---
 
+## 🎯 What Does It Do?
+
+1. **Upload Multi-Page PDFs**: Ingests lecture notes, textbooks, research papers, and slide decks.
+2. **Generates Practice Exams (5 to 100 items)**: Creates multiple-choice questions with 4 realistic options, answer keys, and explanations.
+3. **Practice & Review**:
+   - **Exam Mode**: Scrollable interactive test with progress tracking and score calculation.
+   - **Reviewer Mode**: Side-by-side study guide (questions on the left, highlighted answers + AI rationales on the right).
+4. **Permanent Local Question Bank**: Generated exams are saved in browser storage—retake, review, and export anytime with **0 API tokens used**.
+
+---
+
+## ✨ Key Features
+
+| Feature | Description |
+|---|---|
+| ⚡ **Token Optimizer** | Auto-strips boilerplate, headers, footers, TOC dot leaders, and redundant spacing to reduce input token usage by **30% – 50%**. |
+| 📑 **Page Range Selector** | Select specific page ranges (e.g. `1-15` or `5, 8-12`) per PDF so you only process the chapters you need. |
+| 💸 **Cheapest Model Selector** | Choose between `Gemini 3.6 Flash` (recommended & lowest cost), `Gemini 2.5 Flash`, or standard models based on your token budget. |
+| 📚 **0-Token Retakes** | All exams are saved in local storage. Retake exams, review answers, and track best scores without calling the API again. |
+| 🔑 **Bring Your Own Key** | In-app **🔑 API Key** manager allows pasting your free Gemini API key directly in the browser UI without touching code or `.env` files. |
+| 💾 **JSON Export & Import** | Download question banks as `.json` files to share with classmates or backup offline. |
+| 🖨️ **Print & PDF Export** | Clean printable layout (`window.print()`) for offline study sheets. |
+
+---
+
+## 🚀 Quick Start (Local Run)
+
+### 1. Clone & Install
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/caesarsalad211/pdf-exam-generator.git
+cd pdf-exam-generator
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Run the Development Server
+```bash
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Add Your Free API Key
+- Click the **🔑 Paste API Key** button in the top navbar.
+- Get a free key at [Google AI Studio](https://aistudio.google.com).
+- Click **Save Key** and start generating exams!
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🌐 Deploy Online for Free (Vercel)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Deploy this project on Vercel so your friends and classmates can use it on any device:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Go to [Vercel](https://vercel.com) and sign in with your GitHub account.
+2. Click **"Add New..."** → **"Project"**.
+3. Select the `pdf-exam-generator` repository and click **Deploy**.
+4. You will get a shareable URL (e.g. `https://pdf-exam-generator.vercel.app`) in ~30 seconds!
 
-## Deploy on Vercel
+*(Users can enter their own free API key via the in-app 🔑 button, so it runs on their own free quota!)*
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 16 (App Router + Turbopack)
+- **Styling**: Tailwind CSS
+- **AI Engine**: Google Gemini API (`@google/generative-ai`)
+- **PDF Processing**: `pdf-parse` v2 (Server-side extraction)
+- **Storage**: Browser `localStorage` (Question bank & saved exams)
+- **Language**: TypeScript
+
+---
+
+## 🔒 Privacy & Security
+
+- **Client-Side Keys**: API keys entered in the UI are stored locally in your browser's `localStorage` and sent directly to Google's API endpoints.
+- **No Database Tracking**: Your study PDFs and generated exams remain on your device and are not stored in any external database.

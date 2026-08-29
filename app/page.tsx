@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Uploader from "@/components/Uploader";
 import ExamHistory from "@/components/ExamHistory";
 import ApiKeyModal, { getClientApiKey, openApiKeyModal } from "@/components/ApiKeyModal";
+import AboutModal from "@/components/AboutModal";
 import { UploadedFile, AVAILABLE_MODELS } from "@/lib/types";
 import { estimateTokens } from "@/lib/textCleaner";
 import { saveExamToHistory } from "@/lib/storage";
@@ -74,12 +75,15 @@ export default function HomePage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
-      {/* Top Navbar with API Key Modal trigger */}
-      <div className="mb-6 flex items-center justify-between">
+      {/* Top Navbar with API Key Modal trigger and About */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="text-xl font-black text-indigo-600">📝 ExamGen</span>
         </div>
-        <ApiKeyModal />
+        <div className="flex items-center gap-2">
+          <AboutModal />
+          <ApiKeyModal />
+        </div>
       </div>
 
       {/* Hero Header */}
