@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { SavedExam } from "@/lib/types";
 import {
   getSavedExams,
+  fetchAndSyncSavedExams,
   deleteSavedExam,
   exportExamAsJson,
   importExamFromJson,
@@ -17,7 +18,12 @@ export default function ExamHistory() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    // 1. Instant load from local storage
     setExams(getSavedExams());
+    // 2. Fetch from server disk storage and merge
+    fetchAndSyncSavedExams().then((synced) => {
+      if (synced) setExams(synced);
+    });
   }, []);
 
   function handleOpenExam(exam: SavedExam, mode: "exam" | "reviewer") {
@@ -25,7 +31,8 @@ export default function ExamHistory() {
     sessionStorage.setItem("current_exam_id", exam.id);
     sessionStorage.setItem("current_exam_title", exam.title);
     sessionStorage.setItem("exam_initial_tab", mode);
-    router.push("/exam");
+    localStorage.setItem("current_exam_id", exam.id);
+    router.push(`/exam?id=${encodeURIComponent(exam.id)}`);
   }
 
   function handleDelete(id: string) {

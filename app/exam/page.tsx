@@ -8,7 +8,12 @@ import ReviewerCard from "@/components/ReviewerCard";
 import ScoreSummary from "@/components/ScoreSummary";
 import ApiKeyModal from "@/components/ApiKeyModal";
 import AboutModal from "@/components/AboutModal";
-import { updateExamScore, exportExamAsJson } from "@/lib/storage";
+import {
+  getSavedExams,
+  fetchAndSyncSavedExams,
+  updateExamScore,
+  exportExamAsJson,
+} from "@/lib/storage";
 
 type Tab = "exam" | "reviewer";
 
@@ -21,22 +26,78 @@ export default function ExamPage() {
   const [activeTab, setActiveTab] = useState<Tab>("exam");
   const [examId, setExamId] = useState<string | null>(null);
   const [examTitle, setExamTitle] = useState<string>("Exam");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const raw = sessionStorage.getItem("exam_questions");
-    if (!raw) {
+    async function loadExam() {
+      // 1. Try sessionStorage first
+      const raw = sessionStorage.getItem("exam_questions");
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.length > 0) {
+            setQuestions(parsed);
+            const id = sessionStorage.getItem("current_exam_id");
+            const title = sessionStorage.getItem("current_exam_title");
+            const initialTab = sessionStorage.getItem("exam_initial_tab") as Tab | null;
+            if (id) setExamId(id);
+            if (title) setExamTitle(title);
+            if (initialTab === "reviewer") setActiveTab("reviewer");
+            setLoading(false);
+            return;
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      // 2. If sessionStorage was wiped (e.g. browser closed and reopened), restore from ID
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetId = urlParams.get("id") || localStorage.getItem("current_exam_id");
+
+      if (targetId) {
+        // Look in local storage first
+        let exams = getSavedExams();
+        let found = exams.find((e) => e.id === targetId);
+
+        // If not in local, try fetching from server disk
+        if (!found) {
+          const synced = await fetchAndSyncSavedExams();
+          found = synced.find((e) => e.id === targetId);
+        }
+
+        if (found) {
+          setQuestions(found.questions);
+          setExamId(found.id);
+          setExamTitle(found.title);
+          sessionStorage.setItem("exam_questions", JSON.stringify(found.questions));
+          sessionStorage.setItem("current_exam_id", found.id);
+          sessionStorage.setItem("current_exam_title", found.title);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // 3. Fallback: if there are any saved exams at all, load the most recent one
+      const exams = getSavedExams();
+      if (exams.length > 0) {
+        const latest = exams[0];
+        setQuestions(latest.questions);
+        setExamId(latest.id);
+        setExamTitle(latest.title);
+        sessionStorage.setItem("exam_questions", JSON.stringify(latest.questions));
+        sessionStorage.setItem("current_exam_id", latest.id);
+        sessionStorage.setItem("current_exam_title", latest.title);
+        setLoading(false);
+        return;
+      }
+
+      // 4. Nothing found anywhere, return to home
+      setLoading(false);
       router.replace("/");
-      return;
     }
-    setQuestions(JSON.parse(raw));
 
-    const id = sessionStorage.getItem("current_exam_id");
-    const title = sessionStorage.getItem("current_exam_title");
-    const initialTab = sessionStorage.getItem("exam_initial_tab") as Tab | null;
-
-    if (id) setExamId(id);
-    if (title) setExamTitle(title);
-    if (initialTab === "reviewer") setActiveTab("reviewer");
+    loadExam();
   }, [router]);
 
   function handleSelect(questionId: number, key: keyof Choice) {
@@ -85,7 +146,7 @@ export default function ExamPage() {
     (q) => answers[q.id] === q.answer
   ).length;
 
-  if (questions.length === 0) {
+  if (loading || questions.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="flex items-center gap-3 text-gray-500">

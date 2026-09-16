@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Uploader from "@/components/Uploader";
 import ExamHistory from "@/components/ExamHistory";
@@ -8,7 +8,7 @@ import ApiKeyModal, { getClientApiKey, openApiKeyModal } from "@/components/ApiK
 import AboutModal from "@/components/AboutModal";
 import { UploadedFile, AVAILABLE_MODELS } from "@/lib/types";
 import { estimateTokens } from "@/lib/textCleaner";
-import { saveExamToHistory } from "@/lib/storage";
+import { saveExamToHistory, getTodayUsage, recordTokenUsage, DailyUsage } from "@/lib/storage";
 
 export default function HomePage() {
   const router = useRouter();
@@ -19,6 +19,11 @@ export default function HomePage() {
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dailyUsage, setDailyUsage] = useState<DailyUsage | null>(null);
+
+  useEffect(() => {
+    setDailyUsage(getTodayUsage());
+  }, []);
 
   // Dynamic calculations based on selected model and count
   const activeModel = AVAILABLE_MODELS.find((m) => m.id === selectedModel) || AVAILABLE_MODELS[0];
@@ -29,6 +34,10 @@ export default function HomePage() {
   const estCostUSD =
     (estInputTokens / 1_000_000) * activeModel.inputPricePerM +
     (estOutputTokens / 1_000_000) * activeModel.outputPricePerM;
+
+  const examsRemainingToday = dailyUsage
+    ? Math.floor(dailyUsage.remainingTokens / Math.max(1, estTotalTokens))
+    : 0;
 
   async function handleGenerate() {
     if (files.length === 0) return;
@@ -54,6 +63,10 @@ export default function HomePage() {
         throw new Error(data.error || "Generation failed");
       }
 
+      // Record daily usage
+      const updatedUsage = recordTokenUsage(estTotalTokens);
+      setDailyUsage(updatedUsage);
+
       const title =
         customTitle.trim() ||
         `${files[0]?.name.replace(/\.pdf$/i, "")} (${count} Items)`;
@@ -68,7 +81,7 @@ export default function HomePage() {
       sessionStorage.setItem("current_exam_title", savedExam.title);
       sessionStorage.setItem("exam_initial_tab", "exam");
 
-      router.push("/exam");
+      router.push(`/exam?id=${encodeURIComponent(savedExam.id)}`);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Something went wrong");
     } finally {
@@ -247,7 +260,8 @@ export default function HomePage() {
             </div>
 
             {/* Dynamic Token & Cost Estimation Box */}
-            <div className="rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-50/80 via-white to-indigo-50/50 p-4 shadow-sm">
+            <div className="rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-50/80 via-white to-indigo-50/50 p-4 shadow-sm space-y-3.5">
+              {/* Exam Token Requirement */}
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-emerald-100/80 pb-3">
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 text-base font-bold">
@@ -255,10 +269,10 @@ export default function HomePage() {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-emerald-950">
-                      Estimated Token Budget: ~{estTotalTokens.toLocaleString()} tokens
+                      Estimated Exam Tokens: ~{estTotalTokens.toLocaleString()} tokens
                     </p>
                     <p className="text-[11px] text-emerald-800">
-                      Input: ~{estInputTokens.toLocaleString()} tokens | Output: ~{estOutputTokens.toLocaleString()} tokens ({activeModel.outputTokensPerQuestion} tokens/item)
+                      In: ~{estInputTokens.toLocaleString()} | Out: ~{estOutputTokens.toLocaleString()} ({activeModel.outputTokensPerQuestion} tokens/item)
                     </p>
                   </div>
                 </div>
@@ -270,14 +284,54 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+              {/* Remaining Daily Quota Meter */}
+              {dailyUsage && (
+                <div className="rounded-xl border border-emerald-100 bg-white/80 p-3">
+                  <div className="flex items-center justify-between text-xs mb-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-emerald-600">⚡</span>
+                      <span className="font-bold text-gray-800">
+                        Available Tokens Today:
+                      </span>
+                      <span className="font-bold text-emerald-700">
+                        ~{dailyUsage.remainingTokens.toLocaleString()} / 1,000,000
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-semibold text-emerald-800">
+                      {dailyUsage.percentRemaining}% remaining
+                    </span>
+                  </div>
+
+                  {/* Visual Progress Bar */}
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-indigo-500 transition-all duration-500"
+                      style={{ width: `${dailyUsage.percentRemaining}%` }}
+                    />
+                  </div>
+
+                  <div className="mt-1.5 flex flex-wrap items-center justify-between text-[10px] text-gray-400">
+                    <span>
+                      {dailyUsage.tokensUsed > 0
+                        ? `Used today: ~${dailyUsage.tokensUsed.toLocaleString()} tokens (${dailyUsage.examsGenerated} exams)`
+                        : "No tokens consumed yet today"}
+                    </span>
+                    <span className="font-medium text-indigo-600">
+                      ~{examsRemainingToday.toLocaleString()} exams remaining today
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Price & Speed row */}
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs pt-1">
                 <div className="flex items-center gap-1.5 text-gray-600">
                   <span className="text-sm">💵</span>
-                  <span>Estimated API Cost:</span>
+                  <span>Estimated Cost:</span>
                   <span className="font-bold text-emerald-700">
                     {estCostUSD < 0.001 ? "< $0.001 USD" : `$${estCostUSD.toFixed(4)} USD`}
                   </span>
-                  <span className="text-[10px] text-gray-400">(Free Tier: $0.00)</span>
+                  <span className="text-[10px] text-gray-400">(Free on AI Studio)</span>
                 </div>
 
                 <div className="text-indigo-700 text-[11px] font-medium">
