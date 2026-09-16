@@ -5,6 +5,8 @@ interface ScoreSummaryProps {
   correct: number;
   onReview: () => void;
   onRetake: () => void;
+  onRetakeMissed?: () => void;
+  missedCount?: number;
 }
 
 export default function ScoreSummary({
@@ -12,10 +14,18 @@ export default function ScoreSummary({
   correct,
   onReview,
   onRetake,
+  onRetakeMissed,
+  missedCount,
 }: ScoreSummaryProps) {
   const pct = Math.round((correct / total) * 100);
   const grade =
-    pct >= 90 ? "🏆 Excellent!" : pct >= 75 ? "👍 Good job!" : pct >= 50 ? "📚 Keep studying!" : "💪 Don't give up!";
+    pct >= 90
+      ? "🏆 Excellent!"
+      : pct >= 75
+      ? "👍 Good job!"
+      : pct >= 50
+      ? "📚 Keep studying!"
+      : "💪 Don't give up!";
 
   const ringColor =
     pct >= 75 ? "text-green-500" : pct >= 50 ? "text-amber-500" : "text-red-500";
@@ -35,7 +45,15 @@ export default function ScoreSummary({
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
+        {missedCount && missedCount > 0 && onRetakeMissed && (
+          <button
+            onClick={onRetakeMissed}
+            className="rounded-xl bg-amber-500 px-6 py-3 text-sm font-bold text-white shadow hover:bg-amber-600 transition-colors flex items-center justify-center gap-1.5"
+          >
+            <span>🎯 Retake {missedCount} Missed Questions</span>
+          </button>
+        )}
         <button
           onClick={onReview}
           className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow hover:bg-indigo-700 transition-colors"
@@ -46,7 +64,7 @@ export default function ScoreSummary({
           onClick={onRetake}
           className="rounded-xl border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
         >
-          🔄 Retake Exam
+          🔄 Retake All
         </button>
       </div>
     </div>

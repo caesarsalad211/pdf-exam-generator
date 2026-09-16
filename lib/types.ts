@@ -1,8 +1,8 @@
 export interface Choice {
   A: string;
   B: string;
-  C: string;
-  D: string;
+  C?: string;
+  D?: string;
 }
 
 export interface Question {
@@ -11,6 +11,7 @@ export interface Question {
   choices: Choice;
   answer: keyof Choice; // 'A' | 'B' | 'C' | 'D'
   explanation: string;
+  type?: "mcq" | "true_false";
 }
 
 export interface UploadedFile {
@@ -22,6 +23,17 @@ export interface UploadedFile {
   selectedPageRange?: string; // e.g. "1-20" or "all"
 }
 
+export interface UploadedPhoto {
+  id: string;
+  name: string;
+  mimeType: string;
+  base64Data: string;
+  previewUrl: string;
+}
+
+export type DifficultyLevel = "easy" | "medium" | "hard";
+export type QuestionTypeFormat = "mcq" | "true_false" | "mixed";
+
 export interface SavedExam {
   id: string;
   title: string;
@@ -29,6 +41,9 @@ export interface SavedExam {
   fileNames: string[];
   questionCount: number;
   questions: Question[];
+  difficulty?: DifficultyLevel;
+  questionType?: QuestionTypeFormat;
+  timeLimitMinutes?: number;
   bestScore?: {
     correct: number;
     total: number;
@@ -90,10 +105,20 @@ export const AVAILABLE_MODELS: ModelOption[] = [
   },
 ];
 
+export interface ImageInlinePart {
+  mimeType: string;
+  data: string; // base64 without data:image/... prefix
+}
+
 export interface GenerateRequest {
   texts: string[];
   count: number;
   model?: string;
+  apiKey?: string;
+  difficulty?: DifficultyLevel;
+  questionType?: QuestionTypeFormat;
+  timeLimitMinutes?: number;
+  images?: ImageInlinePart[];
 }
 
 export interface ExtractResponse {
@@ -103,5 +128,3 @@ export interface ExtractResponse {
 export interface GenerateResponse {
   questions: Question[];
 }
-
-

@@ -1,12 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { UploadedFile } from "@/lib/types";
+import { UploadedFile, UploadedPhoto } from "@/lib/types";
 import { estimateTokens } from "@/lib/textCleaner";
 
 interface UploaderProps {
   files: UploadedFile[];
   onFilesExtracted: (files: UploadedFile[]) => void;
+  photos: UploadedPhoto[];
+  onPhotosExtracted: (photos: UploadedPhoto[]) => void;
   loading: boolean;
   setLoading: (v: boolean) => void;
 }
@@ -14,16 +16,22 @@ interface UploaderProps {
 export default function Uploader({
   files,
   onFilesExtracted,
+  photos,
+  onPhotosExtracted,
   loading,
   setLoading,
 }: UploaderProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [activeUploadTab, setActiveUploadTab] = useState<"pdf" | "photo">("pdf");
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
   const [rawFileMap, setRawFileMap] = useState<Record<string, File>>({});
   const [pageRanges, setPageRanges] = useState<Record<string, string>>({});
   const [editingRange, setEditingRange] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Process PDF files
   async function processFiles(newFiles: File[], currentRanges: Record<string, string>) {
     setLoading(true);
     setError(null);
@@ -56,13 +64,13 @@ export default function Uploader({
     }
   }
 
-  async function handleFiles(selectedFiles: FileList | null) {
+  async function handlePdfFiles(selectedFiles: FileList | null) {
     if (!selectedFiles || selectedFiles.length === 0) return;
     const pdfFiles = Array.from(selectedFiles).filter(
       (f) => f.type === "application/pdf"
     );
     if (pdfFiles.length === 0) {
-      setError("Please select PDF files only.");
+      setError("Please select PDF files.");
       return;
     }
 
@@ -73,6 +81,48 @@ export default function Uploader({
     setRawFileMap(newMap);
 
     await processFiles(pdfFiles, pageRanges);
+  }
+
+  // Process Photo / Image files
+  function handlePhotoFiles(selectedFiles: FileList | null) {
+    if (!selectedFiles || selectedFiles.length === 0) return;
+    setError(null);
+
+    const imageFiles = Array.from(selectedFiles).filter((f) =>
+      f.type.startsWith("image/")
+    );
+    if (imageFiles.length === 0) {
+      setError("Please select image files (PNG, JPG, WEBP).");
+      return;
+    }
+
+    const newPhotos: UploadedPhoto[] = [];
+    let processed = 0;
+
+    imageFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const resultStr = e.target?.result as string;
+        // Strip data:image/xxx;base64, prefix for Gemini
+        const base64Data = resultStr.split(",")[1] || "";
+        newPhotos.push({
+          id: "photo_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7),
+          name: file.name,
+          mimeType: file.type || "image/jpeg",
+          base64Data,
+          previewUrl: resultStr,
+        });
+        processed++;
+        if (processed === imageFiles.length) {
+          onPhotosExtracted([...photos, ...newPhotos]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function handleRemovePhoto(id: string) {
+    onPhotosExtracted(photos.filter((p) => p.id !== id));
   }
 
   async function handleApplyPageRange(fileName: string) {
@@ -101,175 +151,266 @@ export default function Uploader({
 
   return (
     <div className="space-y-4">
-      {/* Drop zone */}
-      <div
-        onClick={() => !loading && inputRef.current?.click()}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragging(true);
-        }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={(e) => {
-          e.preventDefault();
-          setDragging(false);
-          handleFiles(e.dataTransfer.files);
-        }}
-        className={`relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-colors cursor-pointer select-none
-          ${dragging ? "border-indigo-500 bg-indigo-50" : "border-gray-300 hover:border-indigo-400 hover:bg-gray-50"}
-          ${loading ? "pointer-events-none opacity-60" : ""}`}
-      >
-        <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
-          <svg
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"
-            />
-          </svg>
-        </div>
-        <p className="text-sm font-medium text-gray-800">
-          {loading ? "Extracting & optimizing PDF text…" : "Drop PDF study materials here or click to browse"}
-        </p>
-        <p className="mt-1 text-xs text-gray-400">Multiple files supported</p>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="application/pdf"
-          multiple
-          className="sr-only"
-          onChange={(e) => handleFiles(e.target.files)}
-        />
+      {/* Tab Switcher: PDF vs Photo */}
+      <div className="flex items-center gap-2 border-b border-gray-100 pb-2">
+        <button
+          type="button"
+          onClick={() => setActiveUploadTab("pdf")}
+          className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-all
+            ${
+              activeUploadTab === "pdf"
+                ? "bg-indigo-600 text-white shadow-sm"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+        >
+          <span>📄 PDF Files</span>
+          {files.length > 0 && (
+            <span className="rounded-full bg-indigo-800/60 px-1.5 py-0.2 text-[10px] text-white">
+              {files.length}
+            </span>
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveUploadTab("photo")}
+          className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-all
+            ${
+              activeUploadTab === "photo"
+                ? "bg-indigo-600 text-white shadow-sm"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+        >
+          <span>📸 Snap / Photo of Problem</span>
+          {photos.length > 0 && (
+            <span className="rounded-full bg-indigo-800/60 px-1.5 py-0.2 text-[10px] text-white">
+              {photos.length}
+            </span>
+          )}
+        </button>
       </div>
 
-      {error && (
-        <p className="rounded-lg bg-red-50 px-4 py-2 text-xs text-red-600">
-          ⚠️ {error}
-        </p>
-      )}
+      {/* PDF DROPZONE */}
+      {activeUploadTab === "pdf" && (
+        <>
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragging(false);
+              handlePdfFiles(e.dataTransfer.files);
+            }}
+            onClick={() => pdfInputRef.current?.click()}
+            className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center transition-all
+              ${
+                dragging
+                  ? "border-indigo-500 bg-indigo-50/50 scale-[0.99]"
+                  : "border-gray-300 bg-slate-50/50 hover:border-indigo-400 hover:bg-white"
+              }
+              ${loading ? "pointer-events-none opacity-60" : ""}`}
+          >
+            <input
+              ref={pdfInputRef}
+              type="file"
+              accept=".pdf,application/pdf"
+              multiple
+              className="sr-only"
+              onChange={(e) => handlePdfFiles(e.target.files)}
+            />
 
-      {/* Token Savings Summary Banner */}
-      {files.length > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-gradient-to-r from-emerald-50 to-indigo-50 border border-emerald-200/70 px-4 py-2.5">
-          <div className="flex items-center gap-2">
-            <span className="text-base">⚡</span>
-            <div>
-              <span className="text-xs font-bold text-emerald-800">
-                Token Optimizer Active
-              </span>
-              <p className="text-[11px] text-gray-600">
-                Stripped boilerplate & headers:{" "}
-                <span className="font-semibold text-emerald-700">
-                  {totalSavedPercent}% tokens saved
-                </span>{" "}
-                ({totalSavedChars.toLocaleString()} chars removed)
-              </p>
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600 shadow-sm">
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
             </div>
-          </div>
-          <div className="text-right">
-            <span className="text-xs font-semibold text-indigo-700">
-              ~{estimatedInputTokens.toLocaleString()} tokens
-            </span>
-            <p className="text-[10px] text-gray-400">est. input size</p>
-          </div>
-        </div>
-      )}
 
-      {/* File list */}
-      {files.length > 0 && (
-        <ul className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
-          {files.map((f) => {
-            const raw = f.rawCharCount || f.charCount;
-            const cleaned = f.charCount;
-            const savedPct = raw > 0 ? Math.round(((raw - cleaned) / raw) * 100) : 0;
-            const isEditing = editingRange === f.name;
+            <p className="text-sm font-semibold text-gray-700">
+              {loading ? "Extracting & sanitizing text…" : "Click or drag & drop PDF files here"}
+            </p>
+            <p className="mt-1 text-xs text-gray-400">
+              Supports multiple lecture slides, notes, or textbook chapters
+            </p>
+          </div>
 
-            return (
-              <li key={f.name} className="p-3.5 sm:px-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
-                      📄
-                    </span>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-gray-800">
-                        {f.name}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-x-2 text-xs text-gray-400">
-                        <span>{f.totalPages ? `${f.totalPages} pages` : ""}</span>
+          {/* Token Savings Banner */}
+          {files.length > 0 && totalSavedChars > 0 && (
+            <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs text-emerald-800">
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm">⚡</span>
+                <span className="font-semibold">Token Sanitizer Active:</span>
+                <span>
+                  Saved ~{totalSavedChars.toLocaleString()} boilerplate chars ({totalSavedPercent}% reduction)
+                </span>
+              </div>
+              <span className="font-bold text-emerald-900">
+                ~{estimatedInputTokens.toLocaleString()} input tokens
+              </span>
+            </div>
+          )}
+
+          {/* PDF Files List */}
+          {files.length > 0 && (
+            <div className="space-y-2.5">
+              {files.map((file) => {
+                const isEditing = editingRange === file.name;
+                const currentRange = pageRanges[file.name] || file.selectedPageRange || "all";
+
+                return (
+                  <div
+                    key={file.name}
+                    className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-3 shadow-xs sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">📄</span>
+                        <p className="truncate text-xs font-bold text-gray-800">{file.name}</p>
+                        <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-600">
+                          {file.totalPages} {file.totalPages === 1 ? "page" : "pages"}
+                        </span>
+                      </div>
+                      <div className="mt-1 flex items-center gap-3 text-[11px] text-gray-400">
+                        <span>~{estimateTokens(file.charCount).toLocaleString()} tokens</span>
                         <span>•</span>
-                        <span>{cleaned.toLocaleString()} chars</span>
-                        {savedPct > 0 && (
-                          <span className="font-medium text-emerald-600">
-                            (-{savedPct}% tokens)
-                          </span>
-                        )}
+                        <span>Pages: <strong className="text-indigo-600">{currentRange}</strong></span>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex shrink-0 items-center gap-2">
-                    <button
-                      onClick={() => setEditingRange(isEditing ? null : f.name)}
-                      className="rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100"
-                    >
-                      {f.selectedPageRange && f.selectedPageRange !== "all"
-                        ? `Pages: ${f.selectedPageRange}`
-                        : "📑 Select Pages"}
-                    </button>
-                    <button
-                      onClick={() => handleRemoveFile(f.name)}
-                      title="Remove file"
-                      className="rounded-lg p-1 text-gray-400 hover:bg-red-50 hover:text-red-500"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      {isEditing ? (
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="text"
+                            placeholder="e.g. 1-10, 15"
+                            value={pageRanges[file.name] ?? (file.selectedPageRange || "")}
+                            onChange={(e) =>
+                              setPageRanges((prev) => ({ ...prev, [file.name]: e.target.value }))
+                            }
+                            className="w-28 rounded-lg border border-indigo-300 px-2 py-1 text-xs text-gray-800 focus:outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleApplyPageRange(file.name)}
+                            className="rounded-lg bg-indigo-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-indigo-700"
+                          >
+                            Apply
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setEditingRange(file.name)}
+                          className="rounded-lg border border-gray-200 bg-gray-50 px-2 py-1 text-[11px] font-medium text-gray-600 hover:bg-gray-100"
+                        >
+                          📑 Pages ({currentRange})
+                        </button>
+                      )}
 
-                {/* Page Range Selector Sub-bar */}
-                {isEditing && (
-                  <div className="mt-3 rounded-lg border border-indigo-100 bg-indigo-50/50 p-2.5">
-                    <p className="mb-1.5 text-xs font-medium text-indigo-900">
-                      Select Page Range to save tokens (e.g. <code className="rounded bg-white px-1">1-15</code> or <code className="rounded bg-white px-1">all</code>):
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        placeholder={`1-${f.totalPages || 10} or all`}
-                        value={pageRanges[f.name] ?? f.selectedPageRange ?? ""}
-                        onChange={(e) =>
-                          setPageRanges({
-                            ...pageRanges,
-                            [f.name]: e.target.value,
-                          })
-                        }
-                        className="w-36 rounded-lg border border-gray-300 bg-white px-2.5 py-1 text-xs text-gray-800 placeholder-gray-400 focus:border-indigo-500 focus:outline-none"
-                      />
                       <button
-                        onClick={() => handleApplyPageRange(f.name)}
-                        className="rounded-lg bg-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700"
+                        type="button"
+                        onClick={() => handleRemoveFile(file.name)}
+                        className="rounded-lg p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                        title="Remove file"
                       >
-                        Apply Filter
-                      </button>
-                      <button
-                        onClick={() => setEditingRange(null)}
-                        className="text-xs text-gray-500 hover:text-gray-700"
-                      >
-                        Cancel
+                        ✕
                       </button>
                     </div>
                   </div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* PHOTO / SNAPSHOT DROPZONE */}
+      {activeUploadTab === "photo" && (
+        <>
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragging(false);
+              handlePhotoFiles(e.dataTransfer.files);
+            }}
+            onClick={() => photoInputRef.current?.click()}
+            className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center transition-all
+              ${
+                dragging
+                  ? "border-emerald-500 bg-emerald-50/50 scale-[0.99]"
+                  : "border-gray-300 bg-slate-50/50 hover:border-emerald-400 hover:bg-white"
+              }`}
+          >
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/jpg"
+              multiple
+              className="sr-only"
+              onChange={(e) => handlePhotoFiles(e.target.files)}
+            />
+
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 shadow-sm">
+              <span className="text-2xl">📸</span>
+            </div>
+
+            <p className="text-sm font-semibold text-gray-700">
+              Upload or snap photos of problems or diagrams
+            </p>
+            <p className="mt-1 text-xs text-gray-400">
+              Math equations, whiteboard notes, diagrams, or textbook problem snapshots (PNG, JPG, WEBP)
+            </p>
+          </div>
+
+          {/* Photo Thumbnails */}
+          {photos.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-bold text-gray-700">
+                Attached Photos ({photos.length}):
+              </p>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {photos.map((photo) => (
+                  <div
+                    key={photo.id}
+                    className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-1 shadow-xs"
+                  >
+                    <img
+                      src={photo.previewUrl}
+                      alt={photo.name}
+                      className="h-28 w-full rounded-lg object-cover"
+                    />
+                    <div className="mt-1 flex items-center justify-between px-1">
+                      <p className="truncate text-[10px] font-semibold text-gray-700">
+                        {photo.name}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => handleRemovePhoto(photo.id)}
+                        className="rounded p-0.5 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                        title="Remove photo"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {error && (
+        <div className="rounded-xl bg-red-50 p-3 text-xs text-red-700 border border-red-200">
+          ⚠️ {error}
+        </div>
       )}
     </div>
   );

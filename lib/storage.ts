@@ -68,7 +68,12 @@ export async function fetchAndSyncSavedExams(): Promise<SavedExam[]> {
 export function saveExamToHistory(
   title: string,
   fileNames: string[],
-  questions: Question[]
+  questions: Question[],
+  options?: {
+    difficulty?: import("./types").DifficultyLevel;
+    questionType?: import("./types").QuestionTypeFormat;
+    timeLimitMinutes?: number;
+  }
 ): SavedExam {
   const exams = getSavedExams();
   const newExam: SavedExam = {
@@ -84,6 +89,9 @@ export function saveExamToHistory(
     fileNames,
     questionCount: questions.length,
     questions,
+    difficulty: options?.difficulty,
+    questionType: options?.questionType,
+    timeLimitMinutes: options?.timeLimitMinutes,
   };
 
   const updated = [newExam, ...exams];

@@ -6,15 +6,25 @@ import Uploader from "@/components/Uploader";
 import ExamHistory from "@/components/ExamHistory";
 import ApiKeyModal, { getClientApiKey, openApiKeyModal } from "@/components/ApiKeyModal";
 import AboutModal from "@/components/AboutModal";
-import { UploadedFile, AVAILABLE_MODELS } from "@/lib/types";
+import {
+  UploadedFile,
+  UploadedPhoto,
+  AVAILABLE_MODELS,
+  DifficultyLevel,
+  QuestionTypeFormat,
+} from "@/lib/types";
 import { estimateTokens } from "@/lib/textCleaner";
 import { saveExamToHistory, getTodayUsage, recordTokenUsage, DailyUsage } from "@/lib/storage";
 
 export default function HomePage() {
   const router = useRouter();
   const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
   const [count, setCount] = useState(10);
   const [selectedModel, setSelectedModel] = useState("gemini-3.6-flash");
+  const [difficulty, setDifficulty] = useState<DifficultyLevel>("medium");
+  const [questionType, setQuestionType] = useState<QuestionTypeFormat>("mcq");
+  const [timerMinutes, setTimerMinutes] = useState<number>(0); // 0 = No timer
   const [customTitle, setCustomTitle] = useState("");
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -28,7 +38,9 @@ export default function HomePage() {
   // Dynamic calculations based on selected model and count
   const activeModel = AVAILABLE_MODELS.find((m) => m.id === selectedModel) || AVAILABLE_MODELS[0];
   const totalChars = files.reduce((acc, f) => acc + (f.charCount || 0), 0);
-  const estInputTokens = estimateTokens(totalChars);
+  // Estimate ~300 tokens per photo analyzed
+  const photoTokens = photos.length * 300;
+  const estInputTokens = estimateTokens(totalChars) + photoTokens;
   const estOutputTokens = count * activeModel.outputTokensPerQuestion;
   const estTotalTokens = estInputTokens + estOutputTokens;
   const estCostUSD =
@@ -40,7 +52,7 @@ export default function HomePage() {
     : 0;
 
   async function handleGenerate() {
-    if (files.length === 0) return;
+    if (files.length === 0 && photos.length === 0) return;
     setGenerating(true);
     setError(null);
     try {
@@ -53,6 +65,10 @@ export default function HomePage() {
           count,
           model: selectedModel,
           apiKey: clientApiKey || undefined,
+          difficulty,
+          questionType,
+          timeLimitMinutes: timerMinutes > 0 ? timerMinutes : undefined,
+          images: photos.map((p) => ({ mimeType: p.mimeType, data: p.base64Data })),
         }),
       });
       const data = await res.json();
@@ -67,19 +83,34 @@ export default function HomePage() {
       const updatedUsage = recordTokenUsage(estTotalTokens);
       setDailyUsage(updatedUsage);
 
-      const title =
-        customTitle.trim() ||
-        `${files[0]?.name.replace(/\.pdf$/i, "")} (${count} Items)`;
-      const fileNames = files.map((f) => f.name);
+      const defaultTitle = files[0]
+        ? `${files[0].name.replace(/\.pdf$/i, "")} (${count} Items)`
+        : photos[0]
+        ? `Photo Problem Quiz (${count} Items)`
+        : `Exam (${count} Items)`;
+      const title = customTitle.trim() || defaultTitle;
+      const fileNames = [
+        ...files.map((f) => f.name),
+        ...photos.map((p) => `📸 ${p.name}`),
+      ];
 
-      // Save to localStorage history so it's permanently stored (0 tokens to retake)
-      const savedExam = saveExamToHistory(title, fileNames, data.questions);
+      // Save to disk & localStorage history
+      const savedExam = saveExamToHistory(title, fileNames, data.questions, {
+        difficulty,
+        questionType,
+        timeLimitMinutes: timerMinutes > 0 ? timerMinutes : undefined,
+      });
 
       // Store in sessionStorage and navigate
       sessionStorage.setItem("exam_questions", JSON.stringify(data.questions));
       sessionStorage.setItem("current_exam_id", savedExam.id);
       sessionStorage.setItem("current_exam_title", savedExam.title);
       sessionStorage.setItem("exam_initial_tab", "exam");
+      if (timerMinutes > 0) {
+        sessionStorage.setItem("exam_time_limit", String(timerMinutes));
+      } else {
+        sessionStorage.removeItem("exam_time_limit");
+      }
 
       router.push(`/exam?id=${encodeURIComponent(savedExam.id)}`);
     } catch (e: unknown) {
@@ -89,7 +120,8 @@ export default function HomePage() {
     }
   }
 
-  const canGenerate = files.length > 0 && !uploading && !generating;
+  const canGenerate =
+    (files.length > 0 || photos.length > 0) && !uploading && !generating;
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
@@ -113,7 +145,7 @@ export default function HomePage() {
           PDF Exam Generator & Reviewer
         </h1>
         <p className="mt-2 text-sm text-gray-500">
-          Upload multi-page PDFs, pick the lowest-cost AI model, and practice or review with token-optimized AI.
+          Upload multi-page PDFs or photos of problems, customize difficulty & timers, and study with Flashcards or Mock Exams.
         </p>
       </div>
 
@@ -121,14 +153,16 @@ export default function HomePage() {
         {/* Saved Exams Section */}
         <ExamHistory />
 
-        {/* Upload section */}
+        {/* Upload section (PDFs & Photos) */}
         <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">
-            1. Upload & Filter PDFs
+            1. Upload Study Materials (PDFs or Photos)
           </h2>
           <Uploader
             files={files}
             onFilesExtracted={setFiles}
+            photos={photos}
+            onPhotosExtracted={setPhotos}
             loading={uploading}
             setLoading={setUploading}
           />
@@ -137,7 +171,7 @@ export default function HomePage() {
         {/* Settings section */}
         <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">
-            2. Configure Exam & Model
+            2. Configure Exam, Difficulty & Timer
           </h2>
           <div className="space-y-5">
             {/* Title (Optional) */}
@@ -150,12 +184,133 @@ export default function HomePage() {
                 placeholder={
                   files[0]
                     ? `${files[0].name.replace(/\.pdf$/i, "")} Quiz`
-                    : "e.g. Biology Midterm Review"
+                    : photos[0]
+                    ? "Photo Problem Practice"
+                    : "e.g. Midterm Comprehensive Exam"
                 }
                 value={customTitle}
                 onChange={(e) => setCustomTitle(e.target.value)}
                 className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:outline-none"
               />
+            </div>
+
+            {/* Difficulty Selector */}
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                Question Difficulty:
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  {
+                    id: "easy" as DifficultyLevel,
+                    label: "🟢 Easy",
+                    sub: "Definitions & Recall",
+                  },
+                  {
+                    id: "medium" as DifficultyLevel,
+                    label: "🟡 Medium",
+                    sub: "Conceptual & Applied",
+                  },
+                  {
+                    id: "hard" as DifficultyLevel,
+                    label: "🔴 Hard",
+                    sub: "Scenarios & Tricky",
+                  },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setDifficulty(item.id)}
+                    className={`rounded-xl border p-2.5 text-center transition-all
+                      ${
+                        difficulty === item.id
+                          ? "border-indigo-600 bg-indigo-50/80 ring-2 ring-indigo-500/20 shadow-xs"
+                          : "border-gray-200 bg-white hover:border-indigo-200 hover:bg-slate-50"
+                      }`}
+                  >
+                    <p className="text-xs font-bold text-gray-900">{item.label}</p>
+                    <p className="text-[10px] text-gray-500 mt-0.5">{item.sub}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Question Format Selector */}
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-gray-700">
+                Question Format:
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  {
+                    id: "mcq" as QuestionTypeFormat,
+                    label: "📝 Multiple Choice",
+                    sub: "4 Choices (A, B, C, D)",
+                  },
+                  {
+                    id: "true_false" as QuestionTypeFormat,
+                    label: "⚖️ True / False",
+                    sub: "2 Choices (True/False)",
+                  },
+                  {
+                    id: "mixed" as QuestionTypeFormat,
+                    label: "🔀 Mixed Types",
+                    sub: "MCQ + True/False",
+                  },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setQuestionType(item.id)}
+                    className={`rounded-xl border p-2.5 text-center transition-all
+                      ${
+                        questionType === item.id
+                          ? "border-indigo-600 bg-indigo-50/80 ring-2 ring-indigo-500/20 shadow-xs"
+                          : "border-gray-200 bg-white hover:border-indigo-200 hover:bg-slate-50"
+                      }`}
+                  >
+                    <p className="text-xs font-bold text-gray-900">{item.label}</p>
+                    <p className="text-[10px] text-gray-500 mt-0.5">{item.sub}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Mock Exam Timer Mode */}
+            <div>
+              <div className="mb-1.5 flex items-center justify-between">
+                <label className="text-xs font-semibold text-gray-700">
+                  ⏱️ Mock Exam Timer (Simulation):
+                </label>
+                <span className="text-[11px] text-gray-400">
+                  {timerMinutes === 0
+                    ? "Untimed Practice"
+                    : `Auto-submits after ${timerMinutes} mins`}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { mins: 0, label: "Off (Practice)" },
+                  { mins: 15, label: "15 min" },
+                  { mins: 30, label: "30 min" },
+                  { mins: 45, label: "45 min" },
+                  { mins: 60, label: "60 min" },
+                ].map((t) => (
+                  <button
+                    key={t.mins}
+                    type="button"
+                    onClick={() => setTimerMinutes(t.mins)}
+                    className={`flex-1 min-w-[75px] rounded-xl border py-2 text-center text-xs font-semibold transition-all
+                      ${
+                        timerMinutes === t.mins
+                          ? "border-indigo-600 bg-indigo-600 text-white shadow-xs"
+                          : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                      }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* AI Model Selector */}
@@ -261,7 +416,6 @@ export default function HomePage() {
 
             {/* Dynamic Token & Cost Estimation Box */}
             <div className="rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-50/80 via-white to-indigo-50/50 p-4 shadow-sm space-y-3.5">
-              {/* Exam Token Requirement */}
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-emerald-100/80 pb-3">
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 text-base font-bold">
@@ -272,7 +426,7 @@ export default function HomePage() {
                       Estimated Exam Tokens: ~{estTotalTokens.toLocaleString()} tokens
                     </p>
                     <p className="text-[11px] text-emerald-800">
-                      In: ~{estInputTokens.toLocaleString()} | Out: ~{estOutputTokens.toLocaleString()} ({activeModel.outputTokensPerQuestion} tokens/item)
+                      In: ~{estInputTokens.toLocaleString()} {photos.length > 0 ? `(${photos.length} photo${photos.length > 1 ? "s" : ""})` : ""} | Out: ~{estOutputTokens.toLocaleString()} ({activeModel.outputTokensPerQuestion} tokens/item)
                     </p>
                   </div>
                 </div>
@@ -387,9 +541,9 @@ export default function HomePage() {
           )}
         </button>
 
-        {files.length === 0 && (
+        {files.length === 0 && photos.length === 0 && (
           <p className="text-center text-xs text-gray-400">
-            Upload at least one PDF above to enable exam generation.
+            Upload at least one PDF or photo of a problem above to enable exam generation.
           </p>
         )}
       </div>
