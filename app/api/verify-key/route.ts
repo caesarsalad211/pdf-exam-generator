@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
     const genAI = new GoogleGenerativeAI(effectiveKey);
     const targetModel = genAI.getGenerativeModel({
-      model: model || "gemini-3.6-flash",
+      model: model || "gemini-3.7-flash",
     });
 
     // Test with a tiny 1-word prompt

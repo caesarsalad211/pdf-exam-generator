@@ -102,9 +102,10 @@ export default function FlashcardView({ questions }: FlashcardViewProps) {
     );
   }
 
+  const isIdentification = currentQ.type === "identification" || !currentQ.choices;
   const isMastered = masteredIds.has(currentQ.id);
   const masteryPercentage = Math.round((masteredIds.size / deck.length) * 100);
-  const answerText = currentQ.choices[currentQ.answer] || "";
+  const answerText = currentQ.choices ? (currentQ.choices as any)[currentQ.answer] || "" : "";
 
   return (
     <div className="mx-auto max-w-2xl py-4">
@@ -167,8 +168,12 @@ export default function FlashcardView({ questions }: FlashcardViewProps) {
               <span className="rounded-xl bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">
                 Question #{currentQ.id}
               </span>
-              <span className="text-xs text-gray-400">
-                {currentQ.type === "true_false" ? "True / False" : "Multiple Choice"}
+              <span className="rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-500">
+                {isIdentification
+                  ? "✏️ Identification"
+                  : currentQ.type === "true_false"
+                  ? "⚖️ True / False"
+                  : "📝 Multiple Choice"}
               </span>
             </div>
 
@@ -205,8 +210,14 @@ export default function FlashcardView({ questions }: FlashcardViewProps) {
 
             <div className="my-auto space-y-3 text-center">
               <div className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-2.5 text-white shadow-md">
-                <span className="text-lg font-black">{currentQ.answer}:</span>
-                <span className="text-base font-bold">{answerText}</span>
+                {isIdentification ? (
+                  <span className="text-base font-extrabold">{currentQ.answer}</span>
+                ) : (
+                  <>
+                    <span className="text-lg font-black">{currentQ.answer}:</span>
+                    <span className="text-base font-bold">{answerText}</span>
+                  </>
+                )}
               </div>
 
               {currentQ.explanation && (

@@ -22,7 +22,7 @@ export default function ExamPage() {
   const router = useRouter();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [originalQuestions, setOriginalQuestions] = useState<Question[]>([]);
-  const [answers, setAnswers] = useState<Record<number, keyof Choice>>({});
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [showScore, setShowScore] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("exam");
@@ -138,21 +138,29 @@ export default function ExamPage() {
     return () => clearInterval(timer);
   }, [timeRemaining, submitted, activeTab]);
 
-  function handleSelect(questionId: number, key: keyof Choice) {
+  function handleSelect(questionId: number, val: string) {
     if (submitted) return;
-    setAnswers((prev) => ({ ...prev, [questionId]: key }));
+    setAnswers((prev) => ({ ...prev, [questionId]: val }));
+  }
+
+  function isAnswerCorrect(q: Question, val: string | undefined): boolean {
+    if (!val || val.trim() === "") return false;
+    if (q.type === "identification" || !q.choices) {
+      return val.trim().toLowerCase() === q.answer.trim().toLowerCase();
+    }
+    return val.trim().toUpperCase() === q.answer.trim().toUpperCase();
   }
 
   function handleSubmit() {
     setSubmitted(true);
     setShowScore(true);
 
-    const correctCount = questions.filter(
-      (q) => answers[q.id] === q.answer
+    const correct = questions.filter((q) =>
+      isAnswerCorrect(q, answers[q.id])
     ).length;
 
     if (examId) {
-      updateExamScore(examId, correctCount, questions.length);
+      updateExamScore(examId, correct, questions.length);
     }
 
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -175,7 +183,7 @@ export default function ExamPage() {
   }
 
   function handleRetakeMissed() {
-    const missed = questions.filter((q) => answers[q.id] !== q.answer);
+    const missed = questions.filter((q) => !isAnswerCorrect(q, answers[q.id]));
     if (missed.length === 0) return;
     setQuestions(missed);
     setAnswers({});
@@ -192,8 +200,8 @@ export default function ExamPage() {
     });
   }
 
-  const answeredCount = Object.keys(answers).length;
-  const correctCount = questions.filter((q) => answers[q.id] === q.answer).length;
+  const answeredCount = Object.values(answers).filter((val) => val && val.trim() !== "").length;
+  const correctCount = questions.filter((q) => isAnswerCorrect(q, answers[q.id])).length;
   const missedCount = questions.length - correctCount;
 
   if (loading || questions.length === 0) {

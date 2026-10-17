@@ -8,10 +8,10 @@ export interface Choice {
 export interface Question {
   id: number;
   question: string;
-  choices: Choice;
-  answer: keyof Choice; // 'A' | 'B' | 'C' | 'D'
+  choices?: Choice;
+  answer: string; // 'A' | 'B' | 'C' | 'D' or exact term for identification
   explanation: string;
-  type?: "mcq" | "true_false";
+  type?: "mcq" | "true_false" | "identification";
 }
 
 export interface UploadedFile {
@@ -32,7 +32,7 @@ export interface UploadedPhoto {
 }
 
 export type DifficultyLevel = "easy" | "medium" | "hard";
-export type QuestionTypeFormat = "mcq" | "true_false" | "mixed";
+export type QuestionTypeFormat = "mcq" | "true_false" | "identification" | "mixed";
 
 export interface SavedExam {
   id: string;
@@ -53,7 +53,7 @@ export interface SavedExam {
 
 export interface ExamSession {
   questions: Question[];
-  answers: Record<number, keyof Choice>; // questionId -> chosen key
+  answers: Record<number, string>; // questionId -> chosen key or typed text
   submitted: boolean;
 }
 
@@ -62,7 +62,7 @@ export interface ModelOption {
   name: string;
   badge: string;
   description: string;
-  costTier: "cheapest" | "balanced" | "standard";
+  costTier: "cheapest" | "balanced" | "flagship";
   inputPricePerM: number; // USD per 1M input tokens
   outputPricePerM: number; // USD per 1M output tokens
   outputTokensPerQuestion: number; // average output tokens per question for this model
@@ -71,37 +71,48 @@ export interface ModelOption {
 
 export const AVAILABLE_MODELS: ModelOption[] = [
   {
+    id: "gemini-3.7-flash",
+    name: "Gemini 3.7 Flash",
+    badge: "🧠 Flagship Reasoning (Recommended)",
+    description: "Google's latest flagship Flash model with superior conceptual depth and nuance.",
+    costTier: "flagship",
+    inputPricePerM: 0.10,
+    outputPricePerM: 0.40,
+    outputTokensPerQuestion: 90,
+    speedRating: "⚡⚡ Very Fast (~18s)",
+  },
+  {
+    id: "gemini-3.8-flash",
+    name: "Gemini 3.8 Flash",
+    badge: "🚀 Cutting Edge Speed",
+    description: "Latest generation architecture optimized for high concurrency and speed.",
+    costTier: "balanced",
+    inputPricePerM: 0.10,
+    outputPricePerM: 0.40,
+    outputTokensPerQuestion: 90,
+    speedRating: "⚡⚡⚡ Ultra Fast (~16s)",
+  },
+  {
     id: "gemini-3.6-flash",
     name: "Gemini 3.6 Flash",
-    badge: "⚡ Lowest Cost & Fastest (Recommended)",
-    description: "Google's latest lightweight Flash model. Ultra-fast throughput and high token efficiency.",
+    badge: "⚡ Lowest Cost & Efficient",
+    description: "Lightweight, ultra-low cost token consumption and dependable questions.",
     costTier: "cheapest",
     inputPricePerM: 0.075,
     outputPricePerM: 0.30,
     outputTokensPerQuestion: 85,
-    speedRating: "⚡⚡⚡ Ultra Fast (< 20s)",
+    speedRating: "⚡⚡⚡ Ultra Fast (< 15s)",
   },
   {
-    id: "gemini-2.5-flash",
-    name: "Gemini 2.5 Flash",
-    badge: "🎯 High Speed Flash",
-    description: "Fast generation with expanded reasoning for deep conceptual questions.",
-    costTier: "balanced",
-    inputPricePerM: 0.10,
-    outputPricePerM: 0.40,
-    outputTokensPerQuestion: 95,
-    speedRating: "⚡⚡ Very Fast (~25s)",
-  },
-  {
-    id: "gemini-1.5-flash",
-    name: "Gemini 1.5 Flash",
-    badge: "⚖️ Standard Flash",
-    description: "Standard general-purpose flash model with broad compatibility.",
-    costTier: "standard",
-    inputPricePerM: 0.15,
-    outputPricePerM: 0.60,
-    outputTokensPerQuestion: 105,
-    speedRating: "⚡ Standard (~30s)",
+    id: "gemini-3.5-flash",
+    name: "Gemini 3.5 Flash",
+    badge: "⚖️ Reliable Standard",
+    description: "Proven standard flash model with broad general knowledge.",
+    costTier: "cheapest",
+    inputPricePerM: 0.075,
+    outputPricePerM: 0.30,
+    outputTokensPerQuestion: 85,
+    speedRating: "⚡ Fast (~20s)",
   },
 ];
 

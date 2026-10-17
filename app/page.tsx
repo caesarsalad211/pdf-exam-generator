@@ -21,7 +21,7 @@ export default function HomePage() {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
   const [count, setCount] = useState(10);
-  const [selectedModel, setSelectedModel] = useState("gemini-3.6-flash");
+  const [selectedModel, setSelectedModel] = useState("gemini-3.7-flash");
   const [difficulty, setDifficulty] = useState<DifficultyLevel>("medium");
   const [questionType, setQuestionType] = useState<QuestionTypeFormat>("mcq");
   const [timerMinutes, setTimerMinutes] = useState<number>(0); // 0 = No timer
@@ -240,7 +240,7 @@ export default function HomePage() {
               <label className="mb-1.5 block text-xs font-semibold text-gray-700">
                 Question Format:
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {[
                   {
                     id: "mcq" as QuestionTypeFormat,
@@ -253,9 +253,14 @@ export default function HomePage() {
                     sub: "2 Choices (True/False)",
                   },
                   {
+                    id: "identification" as QuestionTypeFormat,
+                    label: "✏️ Pure Identification",
+                    sub: "Direct Recall (Type Answer)",
+                  },
+                  {
                     id: "mixed" as QuestionTypeFormat,
                     label: "🔀 Mixed Types",
-                    sub: "MCQ + True/False",
+                    sub: "MCQ + T/F + Identification",
                   },
                 ].map((item) => (
                   <button
@@ -323,7 +328,7 @@ export default function HomePage() {
                   💡 Dynamic token & cost estimation updates live
                 </span>
               </div>
-              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
                 {AVAILABLE_MODELS.map((m) => {
                   const isSelected = selectedModel === m.id;
                   return (
