@@ -1,5 +1,753 @@
 [
   {
+    "id": "exam_1792221836302_mrh64",
+    "title": "01 Molecular Systematics _ Midterm (100 Items)",
+    "createdAt": "Oct 17, 2026, 03:23 PM",
+    "fileNames": [
+      "01 Molecular Systematics _ Midterm.pdf"
+    ],
+    "questionCount": 105,
+    "questions": [
+      {
+        "question": "What discipline involves using molecular data, such as DNA and protein sequences, to infer evolutionary relationships among organisms?",
+        "answer": "Molecular Systematics",
+        "explanation": "Molecular systematics utilizes molecular data like DNA and amino acid sequences to determine evolutionary relationships.",
+        "type": "identification",
+        "id": 1
+      },
+      {
+        "question": "Name the field of classifying organisms based on variations in protein or DNA rather than relying solely on morphology.",
+        "answer": "Molecular Taxonomy",
+        "explanation": "Molecular taxonomy classifies species using molecular variations rather than only morphological traits.",
+        "type": "identification",
+        "id": 2
+      },
+      {
+        "question": "Which traditional approach classifies organisms primarily by comparing observable physical, anatomical, and reproductive traits?",
+        "answer": "Traditional Taxonomy",
+        "explanation": "Traditional or conventional taxonomy relies on comparing visible morphological and anatomical characteristics.",
+        "type": "identification",
+        "id": 3
+      },
+      {
+        "question": "What group of photosynthetic bacteria is often mistaken for true algae but is actually prokaryotic?",
+        "answer": "Cyanobacteria",
+        "explanation": "Cyanobacteria are photosynthetic prokaryotes, not true eukaryotic algae.",
+        "type": "identification",
+        "id": 4
+      },
+      {
+        "question": "What term describes different forms of an enzyme that are encoded by different alleles of the same gene?",
+        "answer": "Allozymes",
+        "explanation": "Allozymes are variant enzyme forms produced by different alleles at a single locus.",
+        "type": "identification",
+        "id": 5
+      },
+      {
+        "question": "What are specific DNA sequences recognized and cleaved by restriction endonucleases called?",
+        "answer": "DNA restriction sites",
+        "explanation": "DNA restriction sites are specific short nucleotide sequences cut by restriction enzymes.",
+        "type": "identification",
+        "id": 6
+      },
+      {
+        "question": "What are short DNA motifs (such as CACACACA) repeated multiple times in tandem called?",
+        "answer": "Microsatellites",
+        "explanation": "Microsatellites are short, tandemly repeated DNA sequence motifs.",
+        "type": "identification",
+        "id": 7
+      },
+      {
+        "question": "Which molecular technique detects differences in DNA fragment lengths caused by variations in restriction enzyme cleavage sites?",
+        "answer": "RFLP",
+        "explanation": "Restriction Fragment Length Polymorphism (RFLP) detects length variations after restriction enzyme digestion.",
+        "type": "identification",
+        "id": 8
+      },
+      {
+        "question": "Which PCR-based technique uses short, arbitrary primers to amplify random regions of DNA across a genome?",
+        "answer": "RAPD",
+        "explanation": "Random Amplified Polymorphic DNA (RAPD) uses arbitrary primers to generate genomic fragment patterns.",
+        "type": "identification",
+        "id": 9
+      },
+      {
+        "question": "Which molecular profiling method combines restriction enzyme digestion, adapter ligation, and selective PCR amplification?",
+        "answer": "AFLP",
+        "explanation": "Amplified Fragment Length Polymorphism (AFLP) combines restriction digestion with selective PCR amplification.",
+        "type": "identification",
+        "id": 10
+      },
+      {
+        "question": "What basic building block of DNA consists of a nitrogenous base, a five-carbon sugar, and a phosphate group?",
+        "answer": "Nucleotide",
+        "explanation": "Nucleotides are the basic subunits of nucleic acids consisting of a base, sugar, and phosphate.",
+        "type": "identification",
+        "id": 11
+      },
+      {
+        "question": "What term refers to two complementary nitrogenous bases paired across opposite DNA strands via hydrogen bonds?",
+        "answer": "Base pair",
+        "explanation": "A base pair forms via complementary hydrogen bonding between two nucleotides on opposing DNA strands.",
+        "type": "identification",
+        "id": 12
+      },
+      {
+        "question": "What specific region of DNA encodes a functional product, such as a protein or functional RNA molecule?",
+        "answer": "Gene",
+        "explanation": "Genes are functional units of heredity located on DNA that code for proteins or functional RNAs.",
+        "type": "identification",
+        "id": 13
+      },
+      {
+        "question": "What family of basic proteins acts as spools around which eukaryotic DNA winds to form nucleosomes?",
+        "answer": "Histones",
+        "explanation": "Histones are basic proteins that bind and package eukaryotic DNA into structural nucleosomes.",
+        "type": "identification",
+        "id": 14
+      },
+      {
+        "question": "What complex of DNA, histones, and other structural proteins makes up eukaryotic chromosomes?",
+        "answer": "Chromatin",
+        "explanation": "Chromatin is the eukaryotic complex consisting of genomic DNA bound to histones and non-histone proteins.",
+        "type": "identification",
+        "id": 15
+      },
+      {
+        "question": "What organized structure consisting of a single long molecule of DNA and associated proteins carries hereditary information?",
+        "answer": "Chromosome",
+        "explanation": "A chromosome is a structured package of DNA and proteins carrying genetic material.",
+        "type": "identification",
+        "id": 16
+      },
+      {
+        "question": "In phylogenetic character coding, what term describes the ancestral character state relative to the group being studied?",
+        "answer": "Plesiomorphic state",
+        "explanation": "A plesiomorphic state is an ancestral trait that was already present in the common ancestor.",
+        "type": "identification",
+        "id": 17
+      },
+      {
+        "question": "In phylogenetic character coding, what term describes a derived character state that differs from the ancestral condition?",
+        "answer": "Apomorphic state",
+        "explanation": "An apomorphic state is an evolutionary novelty or derived state distinct from the ancestral condition.",
+        "type": "identification",
+        "id": 18
+      },
+      {
+        "question": "What is a taxon outside the group of interest used in phylogenetic analysis to root a tree and determine ancestral states?",
+        "answer": "Outgroup",
+        "explanation": "An outgroup is a distantly related lineage used as a reference to determine character polarity and root trees.",
+        "type": "identification",
+        "id": 19
+      },
+      {
+        "question": "What type of nucleotide character position possesses at least two different character states occurring in at least two taxa each?",
+        "answer": "Parsimony-informative character",
+        "explanation": "Parsimony-informative sites contain at least two different states, with at least two states shared by multiple taxa.",
+        "type": "identification",
+        "id": 20
+      },
+      {
+        "question": "What circular, plant organellar genome is derived from an ancient endosymbiotic cyanobacterium?",
+        "answer": "Chloroplast DNA",
+        "explanation": "Chloroplast DNA (cpDNA) is the circular genome found inside chloroplasts, originating from cyanobacterial endosymbiosis.",
+        "type": "identification",
+        "id": 21
+      },
+      {
+        "question": "Which organellar genome originated from an alphaproteobacterial endosymbiont and is rarely used in plant systematics?",
+        "answer": "Mitochondrial DNA",
+        "explanation": "Plant mitochondrial DNA evolved from alphaproteobacteria and undergoes frequent rearrangements, making it rarely used in plant systematics.",
+        "type": "identification",
+        "id": 22
+      },
+      {
+        "question": "Which plant genome provides biparental genetic information and is located in the cell nucleus?",
+        "answer": "Nuclear DNA",
+        "explanation": "Nuclear DNA contains genetic contributions from both maternal and paternal lineages in sexually reproducing plants.",
+        "type": "identification",
+        "id": 23
+      },
+      {
+        "question": "What biological relationship occurs when one organism lives entirely inside the cells or body of another organism?",
+        "answer": "Endosymbiosis",
+        "explanation": "Endosymbiosis is a close symbiotic interaction where one organism lives within the body or cells of another.",
+        "type": "identification",
+        "id": 24
+      },
+      {
+        "question": "What theory posits that mitochondria and chloroplasts originated as free-living prokaryotes engulfed by ancestral host cells?",
+        "answer": "Endosymbiotic Theory",
+        "explanation": "The endosymbiotic theory explains the evolutionary origin of mitochondria and chloroplasts from engulfed prokaryotic cells.",
+        "type": "identification",
+        "id": 25
+      },
+      {
+        "question": "What mode of organellar genome transmission passes chloroplast and mitochondrial DNA almost exclusively through the seed parent?",
+        "answer": "Maternal inheritance",
+        "explanation": "In most plants, organellar genomes are retained in the egg cell and excluded from pollen, showing maternal inheritance.",
+        "type": "identification",
+        "id": 26
+      },
+      {
+        "question": "What is the circular chloroplast genome of land plants and algae technically called?",
+        "answer": "Plastome",
+        "explanation": "The term plastome refers specifically to the circular genome of the plastid/chloroplast.",
+        "type": "identification",
+        "id": 27
+      },
+      {
+        "question": "Which major structural zone of the chloroplast genome occupies the largest non-repeated single-copy section?",
+        "answer": "Large Single Copy",
+        "explanation": "The Large Single Copy (LSC) region is the larger of the two non-repeated partitions of the chloroplast genome.",
+        "type": "identification",
+        "id": 28
+      },
+      {
+        "question": "Which structural partition of the chloroplast genome represents the smaller single-copy region?",
+        "answer": "Small Single Copy",
+        "explanation": "The Small Single Copy (SSC) is the smaller non-repeated region found in the circular plastome.",
+        "type": "identification",
+        "id": 29
+      },
+      {
+        "question": "What two identical duplicate regions in the chloroplast genome are oriented in opposite directions, designated IRa and IRb?",
+        "answer": "Inverted Repeats",
+        "explanation": "Inverted Repeats (IR) are duplicate sequences in opposite orientation separating the LSC and SSC regions.",
+        "type": "identification",
+        "id": 30
+      },
+      {
+        "question": "Which chloroplast gene located in the LSC encodes the beta subunit of ATP synthase?",
+        "answer": "atpB",
+        "explanation": "The atpB gene is situated in the chloroplast LSC and encodes the beta subunit of ATP synthase.",
+        "type": "identification",
+        "id": 31
+      },
+      {
+        "question": "Which widely sequenced chloroplast gene encodes the large subunit of the carbon-fixing enzyme RuBisCO?",
+        "answer": "rbcL",
+        "explanation": "The rbcL gene encodes the large catalytic subunit of RuBisCO involved in photosynthetic carbon fixation.",
+        "type": "identification",
+        "id": 32
+      },
+      {
+        "question": "Which chloroplast gene located inside the trnK intron encodes an RNA maturase used to splice group II introns?",
+        "answer": "matK",
+        "explanation": "The matK gene encodes an RNA maturase involved in splicing group II introns from chloroplast RNA transcripts.",
+        "type": "identification",
+        "id": 33
+      },
+      {
+        "question": "Which chloroplast gene located in the Small Single Copy (SSC) region encodes a subunit of NADH dehydrogenase?",
+        "answer": "ndhF",
+        "explanation": "The ndhF gene is located in the SSC region and codes for a subunit of chloroplast NADH dehydrogenase.",
+        "type": "identification",
+        "id": 34
+      },
+      {
+        "question": "What is the common acronym for the essential photosynthetic enzyme ribulose-1,5-bisphosphate carboxylase/oxygenase?",
+        "answer": "RuBisCO",
+        "explanation": "RuBisCO stands for ribulose-1,5-bisphosphate carboxylase/oxygenase, which catalyzes the primary carbon-fixing step.",
+        "type": "identification",
+        "id": 35
+      },
+      {
+        "question": "What tandemly repeated nuclear DNA fraction codes for the RNA components of the protein-synthesizing ribosome?",
+        "answer": "Nuclear ribosomal DNA",
+        "explanation": "Nuclear ribosomal DNA (nrDNA) consists of tandem repeats coding for ribosomal RNA subunits.",
+        "type": "identification",
+        "id": 36
+      },
+      {
+        "question": "In which subnuclear structure is nuclear ribosomal DNA concentrated and transcribed?",
+        "answer": "Nucleolus",
+        "explanation": "The nucleolus is the specialized nuclear region where nrDNA is centralized and transcribed into rRNA.",
+        "type": "identification",
+        "id": 37
+      },
+      {
+        "question": "What unit of sedimentation coefficient, abbreviated as 'S', is used to denote the size of ribosomal subunits?",
+        "answer": "Svedberg unit",
+        "explanation": "The Svedberg unit (S) measures the sedimentation rate of macromolecular particles during centrifugation.",
+        "type": "identification",
+        "id": 38
+      },
+      {
+        "question": "Which specific nrDNA gene unit encodes the structural RNA component of the eukaryotic 40S small ribosomal subunit?",
+        "answer": "18S",
+        "explanation": "The 18S gene encodes the primary small subunit ribosomal RNA of the eukaryotic cytoplasmic ribosome.",
+        "type": "identification",
+        "id": 39
+      },
+      {
+        "question": "Which large coding unit of eukaryotic nuclear rDNA encodes the primary large-subunit rRNA alongside 5.8S?",
+        "answer": "28S",
+        "explanation": "The 28S nrDNA coding region specifies the major RNA component of the eukaryotic 60S large ribosomal subunit.",
+        "type": "identification",
+        "id": 40
+      },
+      {
+        "question": "Which small conserved rRNA-coding gene lies directly between ITS1 and ITS2 in eukaryotic nrDNA repeats?",
+        "answer": "5.8S",
+        "explanation": "The 5.8S nrDNA gene separates the internal transcribed spacer regions ITS1 and ITS2.",
+        "type": "identification",
+        "id": 41
+      },
+      {
+        "question": "What sedimentation coefficient describes the complete, intact prokaryotic ribosome?",
+        "answer": "70S",
+        "explanation": "Prokaryotic ribosomes have an overall sedimentation size of 70S, composed of 30S and 50S subunits.",
+        "type": "identification",
+        "id": 42
+      },
+      {
+        "question": "What sedimentation coefficient describes the complete, intact eukaryotic cytoplasmic ribosome?",
+        "answer": "80S",
+        "explanation": "The complete eukaryotic cytoplasmic ribosome sediments at 80S, composed of 40S and 60S subunits.",
+        "type": "identification",
+        "id": 43
+      },
+      {
+        "question": "Which small subunit ribosomal RNA molecule is found in 30S prokaryotic ribosomal subunits?",
+        "answer": "16S",
+        "explanation": "The 16S rRNA is the signature structural RNA constituent of the bacterial 30S small ribosomal subunit.",
+        "type": "identification",
+        "id": 44
+      },
+      {
+        "question": "What non-coding spacer region of nrDNA lies between the 18S and 28S genes and is widely used for plant species-level phylogeny?",
+        "answer": "Internal Transcribed Spacer",
+        "explanation": "The Internal Transcribed Spacer (ITS) region lies between 18S and 28S nrDNA and is spliced out during rRNA processing.",
+        "type": "identification",
+        "id": 45
+      },
+      {
+        "question": "Which specific internal transcribed spacer region is located directly between the 18S and 5.8S rRNA genes?",
+        "answer": "ITS1",
+        "explanation": "ITS1 is the non-coding transcribed spacer situated between the 18S and 5.8S ribosomal coding units.",
+        "type": "identification",
+        "id": 46
+      },
+      {
+        "question": "Which specific internal transcribed spacer region is located directly between the 5.8S and 28S rRNA genes?",
+        "answer": "ITS2",
+        "explanation": "ITS2 is the non-coding transcribed spacer located between the 5.8S and 28S ribosomal coding units.",
+        "type": "identification",
+        "id": 47
+      },
+      {
+        "question": "What DNA region separates successive tandem transcription units in nuclear ribosomal DNA repeats?",
+        "answer": "Intergenic Spacer",
+        "explanation": "The Intergenic Spacer (IGS) is the DNA stretch situated between adjacent ribosomal RNA transcription units.",
+        "type": "identification",
+        "id": 48
+      },
+      {
+        "question": "What transcribed portion of the intergenic spacer region is transcribed into precursor rRNA but degraded before ribosome maturation?",
+        "answer": "External Transcribed Spacer",
+        "explanation": "The External Transcribed Spacer (ETS) is transcribed as part of pre-rRNA but removed during processing.",
+        "type": "identification",
+        "id": 49
+      },
+      {
+        "question": "What component of the intergenic spacer region is never transcribed into RNA during ribosomal synthesis?",
+        "answer": "Non-transcribed Spacer",
+        "explanation": "The Non-transcribed Spacer (NTS) is the portion of the IGS that is completely bypassed by RNA polymerase.",
+        "type": "identification",
+        "id": 50
+      },
+      {
+        "question": "Name the specialized biological database that compiles and curates ribosomal RNA sequences for molecular phylogenetics.",
+        "answer": "Ribosomal Database Project-II",
+        "explanation": "The Ribosomal Database Project-II (RDP-II) is a curated repository specializing in rRNA sequence data.",
+        "type": "identification",
+        "id": 51
+      },
+      {
+        "question": "What physical shape characterizes eukaryotic nuclear chromosomes, contrasting with circular organellar genomes?",
+        "answer": "Linear",
+        "explanation": "Nuclear chromosomes in eukaryotes have a linear physical structure rather than a circular arrangement.",
+        "type": "identification",
+        "id": 52
+      },
+      {
+        "question": "What is the initial laboratory process of isolating DNA from cellular structures and separating it from proteins and debris?",
+        "answer": "DNA extraction",
+        "explanation": "DNA extraction isolates pure DNA molecules from cellular constituents and debris.",
+        "type": "identification",
+        "id": 53
+      },
+      {
+        "question": "What chemical reagent is added in the first stage of DNA extraction to disrupt and lyse lipid plasma membranes?",
+        "answer": "Detergent",
+        "explanation": "Detergents break down cellular and organelle lipid bilayers to release cellular contents.",
+        "type": "identification",
+        "id": 54
+      },
+      {
+        "question": "Which enzyme is added during DNA extraction to digest and destroy contaminating cellular proteins?",
+        "answer": "Protease",
+        "explanation": "Protease enzymes enzymatically degrade proteins present in cell lysates.",
+        "type": "identification",
+        "id": 55
+      },
+      {
+        "question": "Which enzyme is added during DNA purification to selectively degrade unwanted ribonucleic acid molecules?",
+        "answer": "RNase",
+        "explanation": "Ribonuclease (RNase) enzymatically breaks down cellular RNA molecules without harming DNA.",
+        "type": "identification",
+        "id": 56
+      },
+      {
+        "question": "What cold solvent is added in the final stage of DNA extraction to precipitate purified DNA out of solution?",
+        "answer": "Ethanol",
+        "explanation": "Ethanol lowers the dielectric constant of the solution, causing purified DNA to precipitate as visible strands.",
+        "type": "identification",
+        "id": 57
+      },
+      {
+        "question": "What molecular laboratory technique rapidly amplifies millions of copies of a targeted DNA region in vitro?",
+        "answer": "Polymerase Chain Reaction",
+        "explanation": "Polymerase Chain Reaction (PCR) exponentially amplifies targeted DNA segments using repeated thermal cycles.",
+        "type": "identification",
+        "id": 58
+      },
+      {
+        "question": "What is the first step of a PCR thermal cycle, where high heat melts double-stranded DNA into single strands?",
+        "answer": "Denaturation",
+        "explanation": "Denaturation breaks hydrogen bonds between complementary strands using high heat to yield single-stranded templates.",
+        "type": "identification",
+        "id": 59
+      },
+      {
+        "question": "At what typical temperature range (above 94°C) is PCR denaturation conducted?",
+        "answer": "94-96°C",
+        "explanation": "Denaturation typically operates between 94°C and 96°C to separate double-stranded DNA templates.",
+        "type": "identification",
+        "id": 60
+      },
+      {
+        "question": "What second PCR step involves lowering the temperature so that synthetic primers can bind complementary template sequences?",
+        "answer": "Primer annealing",
+        "explanation": "Primer annealing allows oligonucleotide primers to bind sequence-specifically to single-stranded templates.",
+        "type": "identification",
+        "id": 61
+      },
+      {
+        "question": "What standard temperature range is employed during the PCR primer annealing phase?",
+        "answer": "45-60°C",
+        "explanation": "Annealing temperatures are generally held between 45°C and 60°C to allow specific primer-template hybridization.",
+        "type": "identification",
+        "id": 62
+      },
+      {
+        "question": "What third step of a PCR cycle involves DNA polymerase adding free nucleotides to the 3' end of the annealed primers?",
+        "answer": "Primer extension",
+        "explanation": "Primer extension is the synthesis phase where DNA polymerase elongates the new strand in the 5' to 3' direction.",
+        "type": "identification",
+        "id": 63
+      },
+      {
+        "question": "What thermostable DNA polymerase is most commonly used to synthesize new DNA strands during PCR extension?",
+        "answer": "Taq polymerase",
+        "explanation": "Taq polymerase is a heat-stable enzyme isolated from Thermus aquaticus used for PCR elongation.",
+        "type": "identification",
+        "id": 64
+      },
+      {
+        "question": "What is the optimal operating temperature for Taq DNA polymerase during the primer extension step of PCR?",
+        "answer": "72°C",
+        "explanation": "Taq polymerase reaches optimal polymerization activity around 72°C during extension.",
+        "type": "identification",
+        "id": 65
+      },
+      {
+        "question": "What automated instrument executes PCR by precisely raising and lowering block temperatures according to a programmed cycle?",
+        "answer": "Thermal cycler",
+        "explanation": "A thermal cycler is the instrument that automatically alternates reaction temperatures during PCR.",
+        "type": "identification",
+        "id": 66
+      },
+      {
+        "question": "What experimental process determines the precise, unambiguous order of nucleotide bases within a DNA molecule?",
+        "answer": "DNA sequencing",
+        "explanation": "DNA sequencing is the laboratory determination of the exact nucleotide sequence of a DNA sample.",
+        "type": "identification",
+        "id": 67
+      },
+      {
+        "question": "What classical sequencing technique utilizes chain-terminating dideoxynucleotides to determine base sequences?",
+        "answer": "Sanger sequencing",
+        "explanation": "Sanger sequencing (or the dideoxy chain-termination method) determines DNA sequence using chain-terminating ddNTPs.",
+        "type": "identification",
+        "id": 68
+      },
+      {
+        "question": "Which British biochemist invented the dideoxy chain-termination method for sequencing nucleic acids?",
+        "answer": "Frederick Sanger",
+        "explanation": "Frederick Sanger pioneered the dideoxy chain-termination DNA sequencing methodology.",
+        "type": "identification",
+        "id": 69
+      },
+      {
+        "question": "What modified synthetic nucleotides lack a 3'-OH group, causing immediate termination of DNA strand elongation upon incorporation?",
+        "answer": "Dideoxynucleotide triphosphates",
+        "explanation": "Dideoxynucleotide triphosphates (ddNTPs) lack the 3'-hydroxyl group required to form phosphodiester bonds with incoming bases.",
+        "type": "identification",
+        "id": 70
+      },
+      {
+        "question": "What specific chemical group on the 3' carbon of a nucleotide sugar is essential for forming the next phosphodiester bond?",
+        "answer": "3'-OH group",
+        "explanation": "The 3'-OH group provides the nucleophilic attachment point required for DNA polymerase to link the next nucleotide.",
+        "type": "identification",
+        "id": 71
+      },
+      {
+        "question": "Which enzyme catalyzes the addition of deoxyribonucleotides during Sanger sequencing synthesis?",
+        "answer": "DNA polymerase I",
+        "explanation": "DNA polymerase I is utilized to extend the primer by incorporating nucleotides until a ddNTP terminates the chain.",
+        "type": "identification",
+        "id": 72
+      },
+      {
+        "question": "What laboratory method separates charged DNA fragments by size as they migrate through a gel or capillary matrix?",
+        "answer": "Electrophoresis",
+        "explanation": "Electrophoresis separates nucleic acid fragments according to length under the influence of an electric field.",
+        "type": "identification",
+        "id": 73
+      },
+      {
+        "question": "What four-color trace of fluorescence peaks represents the base sequence generated by automated DNA sequencing machines?",
+        "answer": "Electropherogram",
+        "explanation": "An electropherogram (or chromatogram) displays colored fluorescence intensity peaks that reveal the nucleotide sequence.",
+        "type": "identification",
+        "id": 74
+      },
+      {
+        "question": "What computational procedure arranges nucleotide or amino acid sequences in rows to identify regions of homology and variation?",
+        "answer": "Sequence alignment",
+        "explanation": "Sequence alignment organizes sequences into columns to maximize matches and highlight evolutionary divergences.",
+        "type": "identification",
+        "id": 75
+      },
+      {
+        "question": "What biological term describes sequences that share common ancestry and evolutionary origin?",
+        "answer": "Homologous sequences",
+        "explanation": "Homologous sequences are derived from a common ancestral sequence through speciation or duplication.",
+        "type": "identification",
+        "id": 76
+      },
+      {
+        "question": "What category of mutation alters a single nucleotide base position within a DNA sequence?",
+        "answer": "Point mutation",
+        "explanation": "A point mutation is a genetic alteration affecting only a single nucleotide base pair position.",
+        "type": "identification",
+        "id": 77
+      },
+      {
+        "question": "What portmanteau term describes an alignment gap caused by either an insertion or a deletion of nucleotides?",
+        "answer": "Indel",
+        "explanation": "The term indel denotes an insertion or deletion mutation represented as a gap in an alignment.",
+        "type": "identification",
+        "id": 78
+      },
+      {
+        "question": "What type of mutation adds one or more extra nucleotide base pairs into an existing DNA sequence?",
+        "answer": "Insertion",
+        "explanation": "An insertion is a mutation characterized by the addition of one or more base pairs to a DNA molecule.",
+        "type": "identification",
+        "id": 79
+      },
+      {
+        "question": "What type of mutation permanently removes one or more nucleotide base pairs from a DNA sequence?",
+        "answer": "Deletion",
+        "explanation": "A deletion is a mutation resulting in the loss of one or more nucleotides from a DNA strand.",
+        "type": "identification",
+        "id": 80
+      },
+      {
+        "question": "What nucleotide substitution replaces a purine with another purine (A ↔ G) or a pyrimidine with another pyrimidine (C ↔ T)?",
+        "answer": "Transition",
+        "explanation": "A transition is an interchange between similar base structures: purine-to-purine or pyrimidine-to-pyrimidine.",
+        "type": "identification",
+        "id": 81
+      },
+      {
+        "question": "What nucleotide substitution replaces a purine with a pyrimidine or vice versa (e.g., A ↔ C, G ↔ T)?",
+        "answer": "Transversion",
+        "explanation": "A transversion replaces a purine base with a pyrimidine base, or a pyrimidine with a purine.",
+        "type": "identification",
+        "id": 82
+      },
+      {
+        "question": "What structural mutation involves a 180-degree rotation of a double-stranded DNA segment containing two or more base pairs?",
+        "answer": "Inversion",
+        "explanation": "An inversion is a chromosomal rearrangement where a DNA segment is reversed end-to-end.",
+        "type": "identification",
+        "id": 83
+      },
+      {
+        "question": "What term describes a DNA or protein region that has remained virtually unchanged across diverse lineages over evolutionary time?",
+        "answer": "Conserved region",
+        "explanation": "Conserved regions are sequence tracts that resist mutation due to structural or functional constraints.",
+        "type": "identification",
+        "id": 84
+      },
+      {
+        "question": "What master regulatory gene controls eye development in Drosophila melanogaster and shares homology with the vertebrate PAX6 gene?",
+        "answer": "eyeless",
+        "explanation": "The eyeless gene is the fruit fly master regulator for eye formation, homologous to vertebrate PAX6.",
+        "type": "identification",
+        "id": 85
+      },
+      {
+        "question": "Which vertebrate homeobox-containing gene is homologous to the Drosophila eyeless gene?",
+        "answer": "PAX6",
+        "explanation": "PAX6 is the vertebrate gene homologous to eyeless that directs optical tissue specification.",
+        "type": "identification",
+        "id": 86
+      },
+      {
+        "question": "What regulatory protein binds directly to specific DNA sequences to control the transcription of target genes?",
+        "answer": "Transcription factor",
+        "explanation": "Transcription factors are sequence-specific DNA-binding proteins that modulate messenger RNA transcription.",
+        "type": "identification",
+        "id": 87
+      },
+      {
+        "question": "Which alignment method aligns entire sequences from end to end and is best suited for sequences of similar length?",
+        "answer": "Global alignment",
+        "explanation": "Global alignment compares two full-length sequences across their entire extents from end to end.",
+        "type": "identification",
+        "id": 88
+      },
+      {
+        "question": "Which alignment approach searches for matching sub-regions or conserved motifs between divergent or unequal-length sequences?",
+        "answer": "Local alignment",
+        "explanation": "Local alignment searches for localized regions of high sequence similarity regardless of overall sequence length.",
+        "type": "identification",
+        "id": 89
+      },
+      {
+        "question": "What classic dynamic programming algorithm is utilized to perform global sequence alignments?",
+        "answer": "Needleman-Wunsch",
+        "explanation": "The Needleman-Wunsch algorithm is the standard dynamic programming algorithm for global sequence alignment.",
+        "type": "identification",
+        "id": 90
+      },
+      {
+        "question": "What widely used NCBI search tool finds regions of local similarity between biological query sequences and reference databases?",
+        "answer": "BLAST",
+        "explanation": "Basic Local Alignment Search Tool (BLAST) performs rapid local sequence alignment searches against genetic databases.",
+        "type": "identification",
+        "id": 91
+      },
+      {
+        "question": "What dynamic programming algorithm is universally used for computing optimal local sequence alignments?",
+        "answer": "Smith-Waterman",
+        "explanation": "The Smith-Waterman algorithm optimizes local sequence alignments by scoring the best-matching local subsegments.",
+        "type": "identification",
+        "id": 92
+      },
+      {
+        "question": "What alignment strategy compares exactly two biological sequences at a time?",
+        "answer": "Pairwise sequence alignment",
+        "explanation": "Pairwise alignment aligns and scores two individual sequences against one another.",
+        "type": "identification",
+        "id": 93
+      },
+      {
+        "question": "What alignment approach aligns three or more homologous biological sequences simultaneously to identify shared conserved sites?",
+        "answer": "Multiple sequence alignment",
+        "explanation": "Multiple sequence alignment (MSA) aligns three or more sequences simultaneously to study phylogenetic and functional relationships.",
+        "type": "identification",
+        "id": 94
+      },
+      {
+        "question": "Name a widely used progressive multiple sequence alignment software tool named after its progressive weighting scheme.",
+        "answer": "ClustalW",
+        "explanation": "ClustalW is a progressive global multiple sequence alignment program widely utilized in molecular biology.",
+        "type": "identification",
+        "id": 95
+      },
+      {
+        "question": "What popular software suite, developed by Kumar and colleagues, integrates sequence alignment and molecular evolutionary analyses?",
+        "answer": "MEGA",
+        "explanation": "Molecular Evolutionary Genetics Analysis (MEGA) is a software package for sequence alignment and phylogenetic tree building.",
+        "type": "identification",
+        "id": 96
+      },
+      {
+        "question": "What high-throughput multiple sequence alignment tool uses the acronym for 'Multiple Sequence Comparison by Log-Expectation'?",
+        "answer": "MUSCLE",
+        "explanation": "MUSCLE is a fast and accurate program designed for multiple sequence alignments.",
+        "type": "identification",
+        "id": 97
+      },
+      {
+        "question": "What branching diagram represents a testable hypothesis concerning the evolutionary relationships among organisms or genes?",
+        "answer": "Phylogenetic tree",
+        "explanation": "A phylogenetic tree is a graphical branching model showing deduced evolutionary relationships among taxa.",
+        "type": "identification",
+        "id": 98
+      },
+      {
+        "question": "What cluster of tree-building methods builds evolutionary hypotheses based strictly on matrices of pairwise genetic distances?",
+        "answer": "Phenetic methods",
+        "explanation": "Phenetic (or distance-based) methods construct trees by converting raw data into a pairwise distance/dissimilarity matrix.",
+        "type": "identification",
+        "id": 99
+      },
+      {
+        "question": "What cluster of phylogenetic methods infers trees directly from discrete character states rather than pairwise distance summaries?",
+        "answer": "Cladistic methods",
+        "explanation": "Cladistic (or character-based) methods directly analyze discrete character state distributions across taxa.",
+        "type": "identification",
+        "id": 100
+      },
+      {
+        "question": "Which distance-based tree method assumes a constant molecular clock and repeatedly clusters the most similar pairs via arithmetic means?",
+        "answer": "UPGMA",
+        "explanation": "UPGMA (Unweighted Pair Group Method with Arithmetic Mean) is a distance-based clustering method assuming an ultrametric rate.",
+        "type": "identification",
+        "id": 101
+      },
+      {
+        "question": "Which popular algorithmic distance method constructs unrooted trees without assuming an equal evolutionary rate among lineages?",
+        "answer": "Neighbor-Joining",
+        "explanation": "Neighbor-Joining (NJ) is an algorithmic distance method that builds trees without requiring a constant molecular clock.",
+        "type": "identification",
+        "id": 102
+      },
+      {
+        "question": "Which character-based method selects the phylogenetic tree that requires the minimal total number of evolutionary character changes?",
+        "answer": "Maximum Parsimony",
+        "explanation": "Maximum Parsimony operates under Occam's razor, preferring the tree topology requiring the fewest evolutionary steps.",
+        "type": "identification",
+        "id": 103
+      },
+      {
+        "question": "Which statistical character method evaluates the probability of observing the sequence data given a specific tree and evolutionary model?",
+        "answer": "Maximum Likelihood",
+        "explanation": "Maximum Likelihood evaluates tree topologies by calculating the probability of the sequence data under a specific model of evolution.",
+        "type": "identification",
+        "id": 104
+      },
+      {
+        "question": "Which probabilistic character-based method uses prior probabilities and MCMC sampling to calculate the posterior probability of a tree?",
+        "answer": "Bayesian Inference",
+        "explanation": "Bayesian inference combines prior distributions with data likelihood to estimate the posterior probability distribution of phylogenetic trees.",
+        "type": "identification",
+        "id": 105
+      }
+    ],
+    "difficulty": "easy",
+    "questionType": "identification"
+  },
+  {
     "id": "exam_1792220894625_2qun7",
     "title": "01 Molecular Systematics _ Midterm (100 Items)",
     "createdAt": "Oct 17, 2026, 03:08 PM",
