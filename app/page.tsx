@@ -21,7 +21,7 @@ export default function HomePage() {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
   const [count, setCount] = useState(10);
-  const [selectedModel, setSelectedModel] = useState("gemini-3.7-flash");
+  const [selectedModel, setSelectedModel] = useState("gemini-3.6-flash");
   const [difficulty, setDifficulty] = useState<DifficultyLevel>("medium");
   const [questionType, setQuestionType] = useState<QuestionTypeFormat>("mcq");
   const [timerMinutes, setTimerMinutes] = useState<number>(0); // 0 = No timer

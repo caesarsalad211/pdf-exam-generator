@@ -8,7 +8,7 @@ function getModel(modelId?: string, clientApiKey?: string) {
       "GEMINI_API_KEY is not configured. Please paste your API key using the 🔑 icon at the top or set it in .env.local"
     );
   }
-  const modelName = modelId || process.env.GEMINI_MODEL || "gemini-3.7-flash";
+  const modelName = modelId || process.env.GEMINI_MODEL || "gemini-3.6-flash";
   const genAI = new GoogleGenerativeAI(apiKey);
   return genAI.getGenerativeModel({
     model: modelName,
@@ -86,8 +86,6 @@ Requirements:
 - Keep questions clear, unambiguous, and directly grounded in the study material.
 ${combinedText ? `\nStudy Material Text:\n${combinedText.slice(0, 120000)}` : ""}`;
 
-  const model = getModel(modelId, clientApiKey);
-
   // Build multimodal content if images are present
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const parts: any[] = [prompt];
@@ -102,8 +100,46 @@ ${combinedText ? `\nStudy Material Text:\n${combinedText.slice(0, 120000)}` : ""
     }
   }
 
-  const result = await model.generateContent(parts);
-  const raw = result.response.text().trim();
+  // Model fallback chain: requested model -> gemini-3.6-flash -> gemini-3.5-flash
+  const requestedModel = modelId || process.env.GEMINI_MODEL || "gemini-3.6-flash";
+  const fallbackModels = [
+    requestedModel,
+    "gemini-3.6-flash",
+    "gemini-3.5-flash",
+  ].filter((m, i, arr) => arr.indexOf(m) === i);
+
+  let raw = "";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let lastError: any = null;
+
+  for (const m of fallbackModels) {
+    try {
+      const model = getModel(m, clientApiKey);
+      const result = await model.generateContent(parts);
+      raw = result.response.text().trim();
+      break;
+    } catch (err: unknown) {
+      lastError = err;
+      const errMsg = err instanceof Error ? err.message : String(err);
+      const isTemporary =
+        errMsg.includes("503") ||
+        errMsg.includes("high demand") ||
+        errMsg.includes("429") ||
+        errMsg.includes("ResourceExhausted") ||
+        errMsg.includes("not found");
+
+      if (!isTemporary) {
+        throw err; // Genuine auth or syntax errors fail immediately
+      }
+
+      console.warn(`Model ${m} encountered: ${errMsg.slice(0, 80)}. Falling back to next available model...`);
+      await new Promise((resolve) => setTimeout(resolve, 800));
+    }
+  }
+
+  if (!raw) {
+    throw lastError || new Error("All AI models are currently busy. Please try again in a moment.");
+  }
 
   // Strip markdown code fences if Gemini wraps in them
   const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
