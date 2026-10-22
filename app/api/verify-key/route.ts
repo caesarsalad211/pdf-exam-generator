@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const VERIFY_MODELS = [
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
+  "gemini-2.5-flash",
   "gemini-3.6-flash",
-  "gemini-3.5-flash",
   "gemini-3.7-flash",
-  "gemini-3.8-flash",
 ];
 
 export async function POST(req: NextRequest) {
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest) {
 
     let lastError: Error | null = null;
     let successfulModel: string | null = null;
+    let hitRateLimit = false;
 
     for (const m of modelsToTry) {
       try {
@@ -52,6 +54,19 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           );
         }
+
+        // If 429 quota reached, Google has successfully authenticated the key!
+        if (
+          errMsg.includes("429") ||
+          errMsg.includes("Too Many Requests") ||
+          errMsg.includes("Quota exceeded") ||
+          errMsg.includes("RESOURCE_EXHAUSTED")
+        ) {
+          hitRateLimit = true;
+          // Try other models in case they have independent quotas
+          continue;
+        }
+
         // If 503 (high demand) or 404 (model unavailable), try next model
         console.warn(`Key verification on ${m} received ${errMsg.slice(0, 70)}. Trying fallback...`);
       }
@@ -62,9 +77,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         valid: true,
         message: isFallback
-          ? `✅ Key Verified! (${model} had high demand; verified active with ${successfulModel})`
+          ? `✅ Key Verified! (${model} was busy; verified active with ${successfulModel})`
           : "✅ Key Verified! Gemini connection successful.",
         verifiedModel: successfulModel,
+      });
+    }
+
+    // If all models were rate limited, the key is still verified as active
+    if (hitRateLimit) {
+      return NextResponse.json({
+        valid: true,
+        message: "✅ Key Verified! (Note: Free Tier 1-min quota reached; ready to generate shortly)",
+        verifiedModel: model || "gemini-2.0-flash",
       });
     }
 

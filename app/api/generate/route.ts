@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateQuestions } from "@/lib/gemini";
+import { generateQuestions, parseGeminiError } from "@/lib/gemini";
 import { GenerateRequest } from "@/lib/types";
 
 export async function POST(req: NextRequest) {
@@ -37,7 +37,14 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ questions });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Generation failed";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const parsed = parseGeminiError(err);
+    return NextResponse.json(
+      {
+        error: parsed.message,
+        isRateLimit: parsed.isRateLimit,
+        retryAfter: parsed.retryAfter,
+      },
+      { status: parsed.isRateLimit ? 429 : 500 }
+    );
   }
 }

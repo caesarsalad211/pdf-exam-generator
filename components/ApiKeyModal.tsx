@@ -77,7 +77,7 @@ export default function ApiKeyModal() {
       if (res.ok && data.valid) {
         setStatusMessage({
           type: "success",
-          text: "✅ Key Verified! Gemini connection successful.",
+          text: data.message || "✅ Key Verified! Gemini connection successful.",
         });
         localStorage.setItem(STORAGE_KEY, apiKey.trim());
         setHasKey(true);

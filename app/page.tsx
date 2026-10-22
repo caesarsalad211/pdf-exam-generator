@@ -21,7 +21,7 @@ export default function HomePage() {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
   const [count, setCount] = useState(10);
-  const [selectedModel, setSelectedModel] = useState("gemini-3.6-flash");
+  const [selectedModel, setSelectedModel] = useState("gemini-2.0-flash");
   const [difficulty, setDifficulty] = useState<DifficultyLevel>("medium");
   const [questionType, setQuestionType] = useState<QuestionTypeFormat>("mcq");
   const [timerMinutes, setTimerMinutes] = useState<number>(0); // 0 = No timer
@@ -29,11 +29,27 @@ export default function HomePage() {
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [rateLimitSeconds, setRateLimitSeconds] = useState<number | null>(null);
   const [dailyUsage, setDailyUsage] = useState<DailyUsage | null>(null);
 
   useEffect(() => {
     setDailyUsage(getTodayUsage());
   }, []);
+
+  // Cooldown countdown effect
+  useEffect(() => {
+    if (rateLimitSeconds === null || rateLimitSeconds <= 0) return;
+    const timer = setInterval(() => {
+      setRateLimitSeconds((prev) => {
+        if (prev === null || prev <= 1) {
+          setError(null);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [rateLimitSeconds]);
 
   // Dynamic calculations based on selected model and count
   const activeModel = AVAILABLE_MODELS.find((m) => m.id === selectedModel) || AVAILABLE_MODELS[0];
@@ -73,6 +89,9 @@ export default function HomePage() {
       });
       const data = await res.json();
       if (!res.ok) {
+        if (data.isRateLimit && data.retryAfter) {
+          setRateLimitSeconds(data.retryAfter);
+        }
         if (data.error && data.error.includes("GEMINI_API_KEY")) {
           openApiKeyModal();
         }
@@ -121,7 +140,10 @@ export default function HomePage() {
   }
 
   const canGenerate =
-    (files.length > 0 || photos.length > 0) && !uploading && !generating;
+    (files.length > 0 || photos.length > 0) &&
+    !uploading &&
+    !generating &&
+    (rateLimitSeconds === null || rateLimitSeconds <= 0);
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
@@ -501,12 +523,52 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Error */}
-        {error && (
+        {/* Rate Limit Cooldown Banner */}
+        {rateLimitSeconds !== null && rateLimitSeconds > 0 ? (
+          <div className="rounded-2xl border border-amber-300 bg-amber-50/90 p-4 shadow-xs">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl shrink-0">⏳</span>
+              <div className="flex-1">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h4 className="text-sm font-bold text-amber-950">
+                    Google Free Tier Rate Limit Active
+                  </h4>
+                  <span className="rounded-full bg-amber-200/90 px-2.5 py-0.5 font-mono text-xs font-bold text-amber-900 border border-amber-300">
+                    ⏱️ {rateLimitSeconds}s cooldown
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-amber-800 leading-relaxed">
+                  Google limits free tier API keys to 5–15 requests per minute per model. Please wait for the cooldown timer, or switch to a high-quota model.
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedModel("gemini-2.0-flash");
+                      setRateLimitSeconds(null);
+                      setError(null);
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-amber-700 transition-colors"
+                  >
+                    ⚡ Switch to Gemini 2.0 Flash (15 RPM)
+                  </button>
+                  <a
+                    href="https://ai.google.dev/gemini-api/docs/rate-limits"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs font-medium text-amber-900 underline hover:text-amber-950"
+                  >
+                    View Rate Limits Docs ↗
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : error ? (
           <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
             ⚠️ {error}
           </div>
-        )}
+        ) : null}
 
         {/* Generate button */}
         <button
@@ -541,6 +603,8 @@ export default function HomePage() {
               </svg>
               Generating with {activeModel.name}…
             </span>
+          ) : rateLimitSeconds !== null && rateLimitSeconds > 0 ? (
+            `⏳ Cooldown Active (${rateLimitSeconds}s)`
           ) : (
             `✨ Generate ${count}-Item Exam`
           )}

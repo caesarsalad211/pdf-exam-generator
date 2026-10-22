@@ -1,6 +1,63 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Question, DifficultyLevel, QuestionTypeFormat, ImageInlinePart } from "./types";
 
+export function parseGeminiError(err: unknown): {
+  message: string;
+  isRateLimit: boolean;
+  retryAfter?: number;
+} {
+  const errMsg = err instanceof Error ? err.message : String(err);
+
+  if (
+    errMsg.includes("429") ||
+    errMsg.includes("Too Many Requests") ||
+    errMsg.includes("Quota exceeded") ||
+    errMsg.includes("RESOURCE_EXHAUSTED") ||
+    errMsg.includes("ResourceExhausted")
+  ) {
+    const delayMatch =
+      errMsg.match(/retryDelay["']?:\s*["']?(\d+)s/i) ||
+      errMsg.match(/Please retry in\s+([\d.]+)s/i);
+    const retrySeconds = delayMatch ? Math.ceil(parseFloat(delayMatch[1])) : 60;
+
+    return {
+      message: `Gemini Free Tier rate limit reached. Please wait ${retrySeconds}s before retrying.`,
+      isRateLimit: true,
+      retryAfter: retrySeconds,
+    };
+  }
+
+  if (errMsg.includes("503") || errMsg.includes("high demand")) {
+    return {
+      message: "The AI model is experiencing temporary high demand. Please try again or switch models.",
+      isRateLimit: false,
+    };
+  }
+
+  if (
+    errMsg.includes("API_KEY_INVALID") ||
+    errMsg.includes("API key not valid") ||
+    errMsg.includes("PERMISSION_DENIED")
+  ) {
+    return {
+      message: "Your Gemini API key is invalid or unauthorized. Please verify your key in the 🔑 menu.",
+      isRateLimit: false,
+    };
+  }
+
+  // Clean raw protobuf noise
+  const clean = errMsg
+    .replace(/^\[GoogleGenerativeAI Error\]:\s*/i, "")
+    .replace(/\[\{[\s\S]*?\}\]/g, "")
+    .replace(/\[\d+\s+[\s\S]*?\]\s*/g, "")
+    .trim();
+
+  return {
+    message: clean.slice(0, 250) || "An unexpected error occurred while communicating with Gemini.",
+    isRateLimit: false,
+  };
+}
+
 function getModel(modelId?: string, clientApiKey?: string) {
   const apiKey = clientApiKey || process.env.GEMINI_API_KEY;
   if (!apiKey || apiKey === "your_api_key_here") {
@@ -8,7 +65,7 @@ function getModel(modelId?: string, clientApiKey?: string) {
       "GEMINI_API_KEY is not configured. Please paste your API key using the 🔑 icon at the top or set it in .env.local"
     );
   }
-  const modelName = modelId || process.env.GEMINI_MODEL || "gemini-3.6-flash";
+  const modelName = modelId || process.env.GEMINI_MODEL || "gemini-2.0-flash";
   const genAI = new GoogleGenerativeAI(apiKey);
   return genAI.getGenerativeModel({
     model: modelName,
@@ -100,12 +157,14 @@ ${combinedText ? `\nStudy Material Text:\n${combinedText.slice(0, 120000)}` : ""
     }
   }
 
-  // Model fallback chain: requested model -> gemini-3.6-flash -> gemini-3.5-flash
-  const requestedModel = modelId || process.env.GEMINI_MODEL || "gemini-3.6-flash";
+  // Model fallback chain: requested model -> gemini-2.0-flash (15 RPM) -> gemini-1.5-flash (15 RPM) -> gemini-2.5-flash -> gemini-3.6-flash
+  const requestedModel = modelId || process.env.GEMINI_MODEL || "gemini-2.0-flash";
   const fallbackModels = [
     requestedModel,
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+    "gemini-2.5-flash",
     "gemini-3.6-flash",
-    "gemini-3.5-flash",
   ].filter((m, i, arr) => arr.indexOf(m) === i);
 
   let raw = "";
@@ -125,15 +184,18 @@ ${combinedText ? `\nStudy Material Text:\n${combinedText.slice(0, 120000)}` : ""
         errMsg.includes("503") ||
         errMsg.includes("high demand") ||
         errMsg.includes("429") ||
+        errMsg.includes("Too Many Requests") ||
         errMsg.includes("ResourceExhausted") ||
-        errMsg.includes("not found");
+        errMsg.includes("RESOURCE_EXHAUSTED") ||
+        errMsg.includes("not found") ||
+        errMsg.includes("404");
 
       if (!isTemporary) {
         throw err; // Genuine auth or syntax errors fail immediately
       }
 
       console.warn(`Model ${m} encountered: ${errMsg.slice(0, 80)}. Falling back to next available model...`);
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
   }
 
